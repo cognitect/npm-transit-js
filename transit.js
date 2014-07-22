@@ -1,3 +1,19 @@
+// transit-js 0.8.616
+// http://transit-format.org
+// 
+// Copyright 2014 Cognitect. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS-IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License..
 function aa(a){var b=typeof a;if("object"==b)if(a){if(a instanceof Array)return"array";if(a instanceof Object)return b;var c=Object.prototype.toString.call(a);if("[object Window]"==c)return"object";if("[object Array]"==c||"number"==typeof a.length&&"undefined"!=typeof a.splice&&"undefined"!=typeof a.propertyIsEnumerable&&!a.propertyIsEnumerable("splice"))return"array";if("[object Function]"==c||"undefined"!=typeof a.call&&"undefined"!=typeof a.propertyIsEnumerable&&!a.propertyIsEnumerable("call"))return"function"}else return"null";
 else if("function"==b&&"undefined"==typeof a.call)return"object";return b};function k(a,b){this.h=a|0;this.e=b|0}var ba={};function l(a){if(-128<=a&&128>a){var b=ba[a];if(b)return b}b=new k(a|0,0>a?-1:0);-128<=a&&128>a&&(ba[a]=b);return b}function m(a){return isNaN(a)||!isFinite(a)?n:a<=-ca?p:a+1>=ca?da:0>a?q(m(-a)):new k(a%r|0,a/r|0)}function t(a,b){return new k(a,b)}
 function u(a,b){if(0==a.length)throw Error("number format error: empty string");var c=b||10;if(2>c||36<c)throw Error("radix out of range: "+c);if("-"==a.charAt(0))return q(u(a.substring(1),c));if(0<=a.indexOf("-"))throw Error('number format error: interior "-" character: '+a);for(var d=m(Math.pow(c,8)),e=n,f=0;f<a.length;f+=8){var g=Math.min(8,a.length-f),h=parseInt(a.substring(f,f+g),c);8>g?(g=m(Math.pow(c,g)),e=e.multiply(g).add(m(h))):(e=e.multiply(d),e=e.add(m(h)))}return e}
