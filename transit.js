@@ -1,4 +1,4 @@
-// transit-js 0.8.700
+// transit-js 0.8.703
 // http://transit-format.org
 // 
 // Copyright 2014 Cognitect. All Rights Reserved.
