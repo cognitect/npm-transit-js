@@ -1,4 +1,4 @@
-// transit-js 0.8.703
+// transit-js 0.8.709
 // http://transit-format.org
 // 
 // Copyright 2014 Cognitect. All Rights Reserved.
@@ -916,7 +916,6 @@ com.cognitect.transit.delimiters.SUB = "^";
 com.cognitect.transit.delimiters.RES = "`";
 com.cognitect.transit.delimiters.ESC_TAG = "~#";
 com.cognitect.transit.eq = {};
-com.cognitect.transit.eq.transitHashCodeProperty = "$com$cognitect$transit$hashCode$";
 com.cognitect.transit.eq.equals = function(a, b) {
   if (null == a) {
     return null == b;
@@ -943,19 +942,13 @@ com.cognitect.transit.eq.equals = function(a, b) {
       if (b.com$cognitect$transit$equals) {
         return b.com$cognitect$transit$equals(a);
       }
-      var d = c = 0, e = com.cognitect.transit.util.objectKeys(b).length, f;
-      for (f in a) {
-        if (a.hasOwnProperty(f)) {
-          if (d++, f == com.cognitect.transit.eq.transitHashCodeProperty) {
-            b[f] || (c = -1);
-          } else {
-            if (!b.hasOwnProperty(f) || !com.cognitect.transit.eq.equals(a[f], b[f])) {
-              return!1;
-            }
-          }
+      var c = 0, d = com.cognitect.transit.util.objectKeys(b).length, e;
+      for (e in a) {
+        if (a.hasOwnProperty(e) && (c++, !b.hasOwnProperty(e) || !com.cognitect.transit.eq.equals(a[e], b[e]))) {
+          return!1;
         }
       }
-      return d + c === e;
+      return c === d;
     }
   }
   return!1;
@@ -986,27 +979,21 @@ com.cognitect.transit.eq.hashMapLike = function(a) {
     });
   } else {
     for (var c = com.cognitect.transit.util.objectKeys(a), d = 0;d < c.length;d++) {
-      var e = c[d];
-      if (e !== com.cognitect.transit.eq.transitHashCodeProperty) {
-        var f = a[e], b = (b + (com.cognitect.transit.eq.hashCode(e) ^ com.cognitect.transit.eq.hashCode(f))) % 4503599627370496
-      }
+      var e = c[d], f = a[e], b = (b + (com.cognitect.transit.eq.hashCode(e) ^ com.cognitect.transit.eq.hashCode(f))) % 4503599627370496
     }
   }
   return b;
 };
 com.cognitect.transit.eq.hashArrayLike = function(a) {
-  var b = a[com.cognitect.transit.eq.transitHashCodeProperty] || 0;
-  if (0 === b) {
-    if (com.cognitect.transit.util.isArray(a)) {
-      for (var c = 0;c < a.length;c++) {
-        b = com.cognitect.transit.eq.hashCombine(b, com.cognitect.transit.eq.hashCode(a[c]));
-      }
-      a[com.cognitect.transit.eq.transitHashCodeProperty] = b;
-    } else {
-      a.forEach && a.forEach(function(a, c) {
-        b = com.cognitect.transit.eq.hashCombine(b, com.cognitect.transit.eq.hashCode(a));
-      });
+  var b = 0;
+  if (com.cognitect.transit.util.isArray(a)) {
+    for (var c = 0;c < a.length;c++) {
+      b = com.cognitect.transit.eq.hashCombine(b, com.cognitect.transit.eq.hashCode(a[c]));
     }
+  } else {
+    a.forEach && a.forEach(function(a, c) {
+      b = com.cognitect.transit.eq.hashCombine(b, com.cognitect.transit.eq.hashCode(a));
+    });
   }
   return b;
 };
@@ -1022,7 +1009,7 @@ com.cognitect.transit.eq.hashCode = function(a) {
     case "string":
       return com.cognitect.transit.eq.hashString(a);
     default:
-      return a instanceof Date ? a.valueOf() : com.cognitect.transit.util.isArray(a) ? com.cognitect.transit.eq.hashArrayLike(a) : a.com$cognitect$transit$hashCode ? a.com$cognitect$transit$hashCode() : a[com.cognitect.transit.eq.transitHashCodeProperty] ? a[com.cognitect.transit.eq.transitHashCodeProperty] : com.cognitect.transit.eq.hashMapLike(a);
+      return a instanceof Date ? a.valueOf() : com.cognitect.transit.util.isArray(a) ? com.cognitect.transit.eq.hashArrayLike(a) : a.com$cognitect$transit$hashCode ? a.com$cognitect$transit$hashCode() : com.cognitect.transit.eq.hashMapLike(a);
   }
 };
 com.cognitect.transit.eq.extendToEQ = function(a, b) {
@@ -1291,9 +1278,10 @@ com.cognitect.transit.types.mapEquals = function(a, b) {
     }
     return!0;
   }
-  if (null != b && "object" === typeof b && (c = com.cognitect.transit.util.objectKeys(b).length - (b.hasOwnProperty(com.cognitect.transit.eq.transitHashCodeProperty) && 1 || 0), a.size === c)) {
-    for (d in b) {
-      if (d !== com.cognitect.transit.eq.transitHashCodeProperty && !com.cognitect.transit.eq.equals(b[d], a.get(d))) {
+  if (null != b && "object" === typeof b && (c = com.cognitect.transit.util.objectKeys(b), d = c.length, a.size === d)) {
+    for (e = 0;e < d;e++) {
+      var f = c[e];
+      if (!a.has(f) || !com.cognitect.transit.eq.equals(b[f], a.get(f))) {
         return!1;
       }
     }
@@ -1325,6 +1313,7 @@ com.cognitect.transit.types.TransitArrayMap.prototype.convert = function() {
   return this.accesses > com.cognitect.transit.types.ARRAY_MAP_ACCESS_THRESHOLD ? (this.backingMap = com.cognitect.transit.types.map(this._entries, !1, !0), this._entries = [], !0) : !1;
 };
 com.cognitect.transit.types.TransitArrayMap.prototype.clear = function() {
+  this.hashCode = -1;
   this.backingMap ? this.backingMap.clear() : this._entries = [];
   this.size = 0;
 };
@@ -1392,6 +1381,7 @@ com.cognitect.transit.types.TransitArrayMap.prototype.has = function(a) {
 };
 com.cognitect.transit.types.TransitArrayMap.prototype.has = com.cognitect.transit.types.TransitArrayMap.prototype.has;
 com.cognitect.transit.types.TransitArrayMap.prototype.set = function(a, b) {
+  this.hashCode = -1;
   if (this.backingMap) {
     this.backingMap.set(a, b), this.size = this.backingMap.size;
   } else {
@@ -1409,6 +1399,7 @@ com.cognitect.transit.types.TransitArrayMap.prototype.set = function(a, b) {
 };
 com.cognitect.transit.types.TransitArrayMap.prototype.set = com.cognitect.transit.types.TransitArrayMap.prototype.set;
 com.cognitect.transit.types.TransitArrayMap.prototype["delete"] = function(a) {
+  this.hashCode = -1;
   if (this.backingMap) {
     this.backingMap["delete"](a), this.size = this.backingMap.size;
   } else {
@@ -1441,16 +1432,17 @@ com.cognitect.transit.types.TransitMap.prototype.toString = function() {
   return "[TransitMap]";
 };
 com.cognitect.transit.types.TransitMap.prototype.clear = function() {
+  this.hashCode = -1;
   this.map = {};
   this._keys = [];
   this.size = 0;
-  this.hashCode = -1;
 };
 com.cognitect.transit.types.TransitMap.prototype.clear = com.cognitect.transit.types.TransitMap.prototype.clear;
 com.cognitect.transit.types.TransitMap.prototype.getKeys = function() {
   return null != this._keys ? this._keys : com.cognitect.transit.util.objectKeys(this.map);
 };
 com.cognitect.transit.types.TransitMap.prototype["delete"] = function(a) {
+  this.hashCode = -1;
   this._keys = null;
   for (var b = com.cognitect.transit.eq.hashCode(a), c = this.map[b], d = 0;d < c.length;d += 2) {
     if (com.cognitect.transit.eq.equals(a, c[d])) {
@@ -1512,6 +1504,7 @@ com.cognitect.transit.types.TransitMap.prototype.keySet = function() {
 };
 com.cognitect.transit.types.TransitMap.prototype.keySet = com.cognitect.transit.types.TransitMap.prototype.keySet;
 com.cognitect.transit.types.TransitMap.prototype.set = function(a, b) {
+  this.hashCode = -1;
   var c = com.cognitect.transit.eq.hashCode(a), d = this.map[c];
   if (null == d) {
     this._keys && this._keys.push(c), this.map[c] = [a, b], this.size++;
@@ -2572,7 +2565,6 @@ com.cognitect.transit.isTaggedValue = com.cognitect.transit.types.isTaggedValue;
 com.cognitect.transit.link = com.cognitect.transit.types.link;
 com.cognitect.transit.isLink = com.cognitect.transit.types.isLink;
 com.cognitect.transit.hash = com.cognitect.transit.eq.hashCode;
-com.cognitect.transit.hashKey = com.cognitect.transit.eq.transitHashCodeProperty;
 com.cognitect.transit.hashMapLike = com.cognitect.transit.eq.hashMapLike;
 com.cognitect.transit.hashMapLike = com.cognitect.transit.eq.hashArrayLike;
 com.cognitect.transit.equals = com.cognitect.transit.eq.equals;
@@ -2598,11 +2590,11 @@ TRANSIT_BROWSER_TARGET && (goog.exportSymbol("transit.reader", com.cognitect.tra
 com.cognitect.transit.types.isInteger), goog.exportSymbol("transit.uuid", com.cognitect.transit.types.uuid), goog.exportSymbol("transit.isUUID", com.cognitect.transit.types.isUUID), goog.exportSymbol("transit.bigInt", com.cognitect.transit.types.bigInteger), goog.exportSymbol("transit.isBigInt", com.cognitect.transit.types.isBigInteger), goog.exportSymbol("transit.bigDec", com.cognitect.transit.types.bigDecimalValue), goog.exportSymbol("transit.isBigDec", com.cognitect.transit.types.isBigDecimal), 
 goog.exportSymbol("transit.keyword", com.cognitect.transit.types.keyword), goog.exportSymbol("transit.isKeyword", com.cognitect.transit.types.isKeyword), goog.exportSymbol("transit.symbol", com.cognitect.transit.types.symbol), goog.exportSymbol("transit.isSymbol", com.cognitect.transit.types.isSymbol), goog.exportSymbol("transit.binary", com.cognitect.transit.types.binary), goog.exportSymbol("transit.isBinary", com.cognitect.transit.types.isBinary), goog.exportSymbol("transit.uri", com.cognitect.transit.types.uri), 
 goog.exportSymbol("transit.isURI", com.cognitect.transit.types.isURI), goog.exportSymbol("transit.map", com.cognitect.transit.types.map), goog.exportSymbol("transit.isMap", com.cognitect.transit.types.isMap), goog.exportSymbol("transit.set", com.cognitect.transit.types.set), goog.exportSymbol("transit.isSet", com.cognitect.transit.types.isSet), goog.exportSymbol("transit.list", com.cognitect.transit.types.list), goog.exportSymbol("transit.isList", com.cognitect.transit.types.isList), goog.exportSymbol("transit.quoted", 
-com.cognitect.transit.types.quoted), goog.exportSymbol("transit.isQuoted", com.cognitect.transit.types.isQuoted), goog.exportSymbol("transit.tagged", com.cognitect.transit.types.taggedValue), goog.exportSymbol("transit.isTaggedValue", com.cognitect.transit.types.isTaggedValue), goog.exportSymbol("transit.link", com.cognitect.transit.types.link), goog.exportSymbol("transit.isLink", com.cognitect.transit.types.isLink), goog.exportSymbol("transit.hash", com.cognitect.transit.eq.hashCode), goog.exportSymbol("transit.hashKey", 
-com.cognitect.transit.eq.transitHashCodeProperty), goog.exportSymbol("transit.hashMapLike", com.cognitect.transit.eq.hashMapLike), goog.exportSymbol("transit.hashArrayLike", com.cognitect.transit.eq.hashArrayLike), goog.exportSymbol("transit.equals", com.cognitect.transit.eq.equals), goog.exportSymbol("transit.extendToEQ", com.cognitect.transit.eq.extendToEQ), goog.exportSymbol("transit.mapToObject", com.cognitect.transit.mapToObject), goog.exportSymbol("transit.decoder", com.cognitect.transit.impl.decoder.decoder), 
-goog.exportSymbol("transit.UUIDfromString", com.cognitect.transit.types.UUIDfromString), goog.exportSymbol("transit.randomUUID", com.cognitect.transit.types.randomUUID), goog.exportSymbol("transit.stringableKeys", com.cognitect.transit.impl.writer.stringableKeys));
+com.cognitect.transit.types.quoted), goog.exportSymbol("transit.isQuoted", com.cognitect.transit.types.isQuoted), goog.exportSymbol("transit.tagged", com.cognitect.transit.types.taggedValue), goog.exportSymbol("transit.isTaggedValue", com.cognitect.transit.types.isTaggedValue), goog.exportSymbol("transit.link", com.cognitect.transit.types.link), goog.exportSymbol("transit.isLink", com.cognitect.transit.types.isLink), goog.exportSymbol("transit.hash", com.cognitect.transit.eq.hashCode), goog.exportSymbol("transit.hashMapLike", 
+com.cognitect.transit.eq.hashMapLike), goog.exportSymbol("transit.hashArrayLike", com.cognitect.transit.eq.hashArrayLike), goog.exportSymbol("transit.equals", com.cognitect.transit.eq.equals), goog.exportSymbol("transit.extendToEQ", com.cognitect.transit.eq.extendToEQ), goog.exportSymbol("transit.mapToObject", com.cognitect.transit.mapToObject), goog.exportSymbol("transit.decoder", com.cognitect.transit.impl.decoder.decoder), goog.exportSymbol("transit.UUIDfromString", com.cognitect.transit.types.UUIDfromString), 
+goog.exportSymbol("transit.randomUUID", com.cognitect.transit.types.randomUUID), goog.exportSymbol("transit.stringableKeys", com.cognitect.transit.impl.writer.stringableKeys));
 TRANSIT_NODE_TARGET && (module.exports = {reader:com.cognitect.transit.reader, writer:com.cognitect.transit.writer, makeBuilder:com.cognitect.transit.makeBuilder, makeWriteHandler:com.cognitect.transit.makeWriteHandler, date:com.cognitect.transit.types.date, integer:com.cognitect.transit.types.intValue, isInteger:com.cognitect.transit.types.isInteger, uuid:com.cognitect.transit.types.uuid, isUUID:com.cognitect.transit.types.isUUID, bigInt:com.cognitect.transit.types.bigInteger, isBigInt:com.cognitect.transit.types.isBigInteger, 
 bigDec:com.cognitect.transit.types.bigDecimalValue, isBigDec:com.cognitect.transit.types.isBigDecimal, keyword:com.cognitect.transit.types.keyword, isKeyword:com.cognitect.transit.types.isKeyword, symbol:com.cognitect.transit.types.symbol, isSymbol:com.cognitect.transit.types.isSymbol, binary:com.cognitect.transit.types.binary, isBinary:com.cognitect.transit.types.isBinary, uri:com.cognitect.transit.types.uri, isURI:com.cognitect.transit.types.isURI, map:com.cognitect.transit.types.map, isMap:com.cognitect.transit.types.isMap, 
-set:com.cognitect.transit.types.set, isSet:com.cognitect.transit.types.isSet, list:com.cognitect.transit.types.list, isList:com.cognitect.transit.types.isList, quoted:com.cognitect.transit.types.quoted, isQuoted:com.cognitect.transit.types.isQuoted, tagged:com.cognitect.transit.types.taggedValue, isTaggedValue:com.cognitect.transit.types.isTaggedValue, link:com.cognitect.transit.types.link, isLink:com.cognitect.transit.types.isLink, hash:com.cognitect.transit.eq.hashCode, hashKey:com.cognitect.transit.eq.transitHashCodeProperty, 
-hashArrayLike:com.cognitect.transit.eq.hashArrayLike, hashMapLike:com.cognitect.transit.eq.hashMapLike, equals:com.cognitect.transit.eq.equals, extendToEQ:com.cognitect.transit.eq.extendToEQ, mapToObject:com.cognitect.transit.mapToObject, decoder:com.cognitect.transit.impl.decoder.decoder, UUIDfromString:com.cognitect.transit.types.UUIDfromString, randomUUID:com.cognitect.transit.types.randomUUID, stringableKeys:com.cognitect.transit.impl.writer.stringableKeys});
+set:com.cognitect.transit.types.set, isSet:com.cognitect.transit.types.isSet, list:com.cognitect.transit.types.list, isList:com.cognitect.transit.types.isList, quoted:com.cognitect.transit.types.quoted, isQuoted:com.cognitect.transit.types.isQuoted, tagged:com.cognitect.transit.types.taggedValue, isTaggedValue:com.cognitect.transit.types.isTaggedValue, link:com.cognitect.transit.types.link, isLink:com.cognitect.transit.types.isLink, hash:com.cognitect.transit.eq.hashCode, hashArrayLike:com.cognitect.transit.eq.hashArrayLike, 
+hashMapLike:com.cognitect.transit.eq.hashMapLike, equals:com.cognitect.transit.eq.equals, extendToEQ:com.cognitect.transit.eq.extendToEQ, mapToObject:com.cognitect.transit.mapToObject, decoder:com.cognitect.transit.impl.decoder.decoder, UUIDfromString:com.cognitect.transit.types.UUIDfromString, randomUUID:com.cognitect.transit.types.randomUUID, stringableKeys:com.cognitect.transit.impl.writer.stringableKeys});
 
