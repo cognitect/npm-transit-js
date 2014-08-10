@@ -1,4 +1,4 @@
-// transit-js 0.8.709
+// transit-js 0.8.711
 // http://transit-format.org
 // 
 // Copyright 2014 Cognitect. All Rights Reserved.
@@ -2583,9 +2583,6 @@ com.cognitect.transit.decoder = com.cognitect.transit.impl.decoder.decoder;
 com.cognitect.transit.UUIDfromString = com.cognitect.transit.types.UUIDfromString;
 com.cognitect.transit.randomUUID = com.cognitect.transit.types.randomUUID;
 com.cognitect.transit.stringableKeys = com.cognitect.transit.impl.writer.stringableKeys;
-TRANSIT_BROWSER_AMD_TARGET && define("transit", [], function() {
-  return com.cognitect.transit;
-});
 TRANSIT_BROWSER_TARGET && (goog.exportSymbol("transit.reader", com.cognitect.transit.reader), goog.exportSymbol("transit.writer", com.cognitect.transit.writer), goog.exportSymbol("transit.makeBuilder", com.cognitect.transit.makeBuilder), goog.exportSymbol("transit.makeWriteHandler", com.cognitect.transit.makeWriteHandler), goog.exportSymbol("transit.date", com.cognitect.transit.types.date), goog.exportSymbol("transit.integer", com.cognitect.transit.types.intValue), goog.exportSymbol("transit.isInteger", 
 com.cognitect.transit.types.isInteger), goog.exportSymbol("transit.uuid", com.cognitect.transit.types.uuid), goog.exportSymbol("transit.isUUID", com.cognitect.transit.types.isUUID), goog.exportSymbol("transit.bigInt", com.cognitect.transit.types.bigInteger), goog.exportSymbol("transit.isBigInt", com.cognitect.transit.types.isBigInteger), goog.exportSymbol("transit.bigDec", com.cognitect.transit.types.bigDecimalValue), goog.exportSymbol("transit.isBigDec", com.cognitect.transit.types.isBigDecimal), 
 goog.exportSymbol("transit.keyword", com.cognitect.transit.types.keyword), goog.exportSymbol("transit.isKeyword", com.cognitect.transit.types.isKeyword), goog.exportSymbol("transit.symbol", com.cognitect.transit.types.symbol), goog.exportSymbol("transit.isSymbol", com.cognitect.transit.types.isSymbol), goog.exportSymbol("transit.binary", com.cognitect.transit.types.binary), goog.exportSymbol("transit.isBinary", com.cognitect.transit.types.isBinary), goog.exportSymbol("transit.uri", com.cognitect.transit.types.uri), 
