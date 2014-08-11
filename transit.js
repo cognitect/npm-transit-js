@@ -1,4 +1,4 @@
-// transit-js 0.8.711
+// transit-js 0.8.715
 // http://transit-format.org
 // 
 // Copyright 2014 Cognitect. All Rights Reserved.
@@ -1715,7 +1715,7 @@ com.cognitect.transit.caching.WriteCache.prototype.clear = function() {
   this.gen++;
 };
 com.cognitect.transit.caching.isCacheCode = function(a) {
-  return a.charAt(0) === com.cognitect.transit.delimiters.SUB;
+  return a.charAt(0) === com.cognitect.transit.delimiters.SUB && " " !== a.charAt(1);
 };
 com.cognitect.transit.caching.codeToIdx = function(a) {
   if (2 === a.length) {
@@ -1905,9 +1905,11 @@ com.cognitect.transit.impl.decoder.Decoder.prototype.decodeArray = function(a, b
     }
     return e;
   }
+  e = b && b.idx;
   if (2 === a.length && "string" === typeof a[0] && (d = this.decode(a[0], b, !1, !1), com.cognitect.transit.impl.decoder.isTag(d))) {
     return a = a[1], c = this.handlers[d.str], null != c ? e = c(this.decode(a, b, !1, !0)) : com.cognitect.transit.types.taggedValue(d.str, this.decode(a, b, !1, !1));
   }
+  b && e != b.idx && (b.idx = e);
   if (this.arrayBuilder) {
     if (32 >= a.length && this.arrayBuilder.fromArray) {
       e = [];
@@ -2245,9 +2247,12 @@ com.cognitect.transit.impl.writer.JSONMarshaller = function(a) {
   this.preferStrings = null != this.opts.preferStrings ? this.opts.preferStrings : !0;
   this.objectBuilder = this.opts.objectBuilder || null;
   this.handlers = new com.cognitect.transit.handlers.Handlers;
-  if (this.opts.handlers) {
+  if (a = this.opts.handlers) {
+    if (com.cognitect.transit.util.isArray(a) || !a.forEach) {
+      throw Error('transit writer "handlers" option must be a map');
+    }
     var b = this;
-    this.opts.handlers.forEach(function(a, d) {
+    a.forEach(function(a, d) {
       b.handlers.set(d, a);
     });
   }
