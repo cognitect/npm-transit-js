@@ -1,4 +1,4 @@
-// transit-js 0.8.715
+// transit-js 0.8.718
 // http://transit-format.org
 // 
 // Copyright 2014 Cognitect. All Rights Reserved.
@@ -1268,6 +1268,9 @@ com.cognitect.transit.types.TransitMapIterator.prototype.next = function() {
 };
 com.cognitect.transit.types.TransitMapIterator.prototype.next = com.cognitect.transit.types.TransitMapIterator.prototype.next;
 com.cognitect.transit.types.mapEquals = function(a, b) {
+  if (a === b) {
+    return!0;
+  }
   if ((b instanceof com.cognitect.transit.types.TransitMap || b instanceof com.cognitect.transit.types.TransitArrayMap) && a.size === b.size) {
     for (var c in a.map) {
       for (var d = a.map[c], e = 0;e < d.length;e += 2) {
@@ -2212,7 +2215,8 @@ com.cognitect.transit.handlers.Handlers = function() {
   com.cognitect.transit.handlers.defaultHandlers(this);
 };
 com.cognitect.transit.handlers.Handlers.prototype.get = function(a) {
-  return "string" === typeof a ? this.handlers[a] : this.handlers[com.cognitect.transit.handlers.typeTag(a)];
+  var b = null, b = "string" === typeof a ? this.handlers[a] : this.handlers[com.cognitect.transit.handlers.typeTag(a)];
+  return null != b ? b : this.handlers["default"];
 };
 com.cognitect.transit.handlers.validTag = function(a) {
   switch(a) {
