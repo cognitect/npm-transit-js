@@ -1,4 +1,4 @@
-// transit-js 0.8.718
+// transit-js 0.8.724
 // http://transit-format.org
 // 
 // Copyright 2014 Cognitect. All Rights Reserved.
@@ -1268,9 +1268,6 @@ com.cognitect.transit.types.TransitMapIterator.prototype.next = function() {
 };
 com.cognitect.transit.types.TransitMapIterator.prototype.next = com.cognitect.transit.types.TransitMapIterator.prototype.next;
 com.cognitect.transit.types.mapEquals = function(a, b) {
-  if (a === b) {
-    return!0;
-  }
   if ((b instanceof com.cognitect.transit.types.TransitMap || b instanceof com.cognitect.transit.types.TransitArrayMap) && a.size === b.size) {
     for (var c in a.map) {
       for (var d = a.map[c], e = 0;e < d.length;e += 2) {
@@ -1353,19 +1350,19 @@ com.cognitect.transit.types.TransitArrayMap.prototype.forEach = function(a) {
   }
 };
 com.cognitect.transit.types.TransitArrayMap.prototype.forEach = com.cognitect.transit.types.TransitArrayMap.prototype.forEach;
-com.cognitect.transit.types.TransitArrayMap.prototype.get = function(a) {
+com.cognitect.transit.types.TransitArrayMap.prototype.get = function(a, b) {
   if (this.backingMap) {
     return this.backingMap.get(a);
   }
   if (this.convert()) {
     return this.get(a);
   }
-  for (var b = 0;b < this._entries.length;b += 2) {
-    if (com.cognitect.transit.eq.equals(this._entries[b], a)) {
-      return this._entries[b + 1];
+  for (var c = 0;c < this._entries.length;c += 2) {
+    if (com.cognitect.transit.eq.equals(this._entries[c], a)) {
+      return this._entries[c + 1];
     }
   }
-  return null;
+  return b;
 };
 com.cognitect.transit.types.TransitArrayMap.prototype.get = com.cognitect.transit.types.TransitArrayMap.prototype.get;
 com.cognitect.transit.types.TransitArrayMap.prototype.has = function(a) {
@@ -1468,16 +1465,16 @@ com.cognitect.transit.types.TransitMap.prototype.forEach = function(a) {
   }
 };
 com.cognitect.transit.types.TransitMap.prototype.forEach = com.cognitect.transit.types.TransitMap.prototype.forEach;
-com.cognitect.transit.types.TransitMap.prototype.get = function(a) {
-  var b = com.cognitect.transit.eq.hashCode(a), b = this.map[b];
-  if (null != b) {
-    for (var c = 0;c < b.length;c += 2) {
-      if (com.cognitect.transit.eq.equals(a, b[c])) {
-        return b[c + 1];
+com.cognitect.transit.types.TransitMap.prototype.get = function(a, b) {
+  var c = com.cognitect.transit.eq.hashCode(a), c = this.map[c];
+  if (null != c) {
+    for (var d = 0;d < c.length;d += 2) {
+      if (com.cognitect.transit.eq.equals(a, c[d])) {
+        return c[d + 1];
       }
     }
   } else {
-    return null;
+    return b;
   }
 };
 com.cognitect.transit.types.TransitMap.prototype.get = com.cognitect.transit.types.TransitMap.prototype.get;
@@ -1680,6 +1677,18 @@ com.cognitect.transit.types.link = function(a) {
 com.cognitect.transit.types.isLink = function(a) {
   return a instanceof com.cognitect.transit.types.TaggedValue && "link" === a.tag;
 };
+com.cognitect.transit.types.specialDouble = function(a) {
+  switch(a) {
+    case "-INF":
+      return-Infinity;
+    case "INF":
+      return Infinity;
+    case "NaN":
+      return NaN;
+    default:
+      throw Error("Invalid special double value " + a);;
+  }
+};
 com.cognitect.transit.caching = {};
 com.cognitect.transit.caching.MIN_SIZE_CACHEABLE = 3;
 com.cognitect.transit.caching.BASE_CHAR_IDX = 48;
@@ -1817,6 +1826,8 @@ com.cognitect.transit.impl.decoder.Decoder.prototype.defaults = {handlers:{_:fun
   return com.cognitect.transit.types.symbol(a);
 }, r:function(a) {
   return com.cognitect.transit.types.uri(a);
+}, z:function(a) {
+  return com.cognitect.transit.types.specialDouble(a);
 }, "'":function(a) {
   return a;
 }, m:function(a) {
@@ -2283,7 +2294,7 @@ com.cognitect.transit.impl.writer.JSONMarshaller.prototype.emitBoolean = functio
   return b ? this.emitString(com.cognitect.transit.delimiters.ESC, "?", a.toString()[0], b, c) : a;
 };
 com.cognitect.transit.impl.writer.JSONMarshaller.prototype.emitInteger = function(a, b, c) {
-  return b || "string" === typeof a || a instanceof goog.math.Long ? this.emitString(com.cognitect.transit.delimiters.ESC, "i", a.toString(), b, c) : a;
+  return Infinity === a ? this.emitString(com.cognitect.transit.delimiters.ESC, "z", "INF", b, c) : -Infinity === a ? this.emitString(com.cognitect.transit.delimiters.ESC, "z", "-INF", b, c) : isNaN(a) ? this.emitString(com.cognitect.transit.delimiters.ESC, "z", "NaN", b, c) : b || "string" === typeof a || a instanceof goog.math.Long ? this.emitString(com.cognitect.transit.delimiters.ESC, "i", a.toString(), b, c) : a;
 };
 com.cognitect.transit.impl.writer.JSONMarshaller.prototype.emitDouble = function(a, b, c) {
   return b ? this.emitString(a.ESC, "d", a, b, c) : a;
