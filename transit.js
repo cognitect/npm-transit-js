@@ -1,4 +1,4 @@
-// transit-js 0.8.724
+// transit-js 0.8.727
 // http://transit-format.org
 // 
 // Copyright 2014 Cognitect. All Rights Reserved.
@@ -916,6 +916,8 @@ com.cognitect.transit.delimiters.SUB = "^";
 com.cognitect.transit.delimiters.RES = "`";
 com.cognitect.transit.delimiters.ESC_TAG = "~#";
 com.cognitect.transit.eq = {};
+com.cognitect.transit.eq.hashCodeProperty = "transit$hashCode$";
+com.cognitect.transit.eq.hashCodeCounter = 1;
 com.cognitect.transit.eq.equals = function(a, b) {
   if (null == a) {
     return null == b;
@@ -1008,6 +1010,10 @@ com.cognitect.transit.eq.hashCode = function(a) {
       return!0 === a ? 1 : 0;
     case "string":
       return com.cognitect.transit.eq.hashString(a);
+    case "function":
+      var b = a[com.cognitect.transit.eq.hashCodeProperty];
+      b || (b = com.cognitect.transit.eq.hashCodeCounter, "undefined" != typeof Object.defineProperty ? Object.defineProperty(a, com.cognitect.transit.eq.hashCodeProperty, {value:b, enumerable:!1}) : a[com.cognitect.transit.eq.hashCodeProperty] = b, com.cognitect.transit.eq.hashCodeCounter++);
+      return b;
     default:
       return a instanceof Date ? a.valueOf() : com.cognitect.transit.util.isArray(a) ? com.cognitect.transit.eq.hashArrayLike(a) : a.com$cognitect$transit$hashCode ? a.com$cognitect$transit$hashCode() : com.cognitect.transit.eq.hashMapLike(a);
   }
