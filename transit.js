@@ -1,4 +1,4 @@
-// transit-js 0.8.734
+// transit-js 0.8.747
 // http://transit-format.org
 // 
 // Copyright 2014 Cognitect. All Rights Reserved.
@@ -1944,6 +1944,7 @@ com.cognitect.transit.util.isArray = "undefined" != typeof Array.isArray ? funct
 } : function(a) {
   return "array" === goog.typeOf(a);
 };
+com.cognitect.transit.util.chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
 com.cognitect.transit.util.randInt = function(a) {
   return Math.round(Math.random() * a);
 };
@@ -1955,6 +1956,47 @@ com.cognitect.transit.util.randomUUID = function() {
   return com.cognitect.transit.util.randHex() + com.cognitect.transit.util.randHex() + com.cognitect.transit.util.randHex() + com.cognitect.transit.util.randHex() + com.cognitect.transit.util.randHex() + com.cognitect.transit.util.randHex() + com.cognitect.transit.util.randHex() + com.cognitect.transit.util.randHex() + "-" + com.cognitect.transit.util.randHex() + com.cognitect.transit.util.randHex() + com.cognitect.transit.util.randHex() + com.cognitect.transit.util.randHex() + "-4" + com.cognitect.transit.util.randHex() + 
   com.cognitect.transit.util.randHex() + com.cognitect.transit.util.randHex() + "-" + a + com.cognitect.transit.util.randHex() + com.cognitect.transit.util.randHex() + com.cognitect.transit.util.randHex() + "-" + com.cognitect.transit.util.randHex() + com.cognitect.transit.util.randHex() + com.cognitect.transit.util.randHex() + com.cognitect.transit.util.randHex() + com.cognitect.transit.util.randHex() + com.cognitect.transit.util.randHex() + com.cognitect.transit.util.randHex() + com.cognitect.transit.util.randHex() + 
   com.cognitect.transit.util.randHex() + com.cognitect.transit.util.randHex() + com.cognitect.transit.util.randHex() + com.cognitect.transit.util.randHex();
+};
+com.cognitect.transit.util.btoa = function(a) {
+  if ("undefined" != typeof btoa) {
+    return btoa(a);
+  }
+  a = String(a);
+  for (var b, c, d = 0, e = com.cognitect.transit.util.chars, f = "";a.charAt(d | 0) || (e = "=", d % 1);f += e.charAt(63 & b >> 8 - d % 1 * 8)) {
+    c = a.charCodeAt(d += .75);
+    if (255 < c) {
+      throw Error("'btoa' failed: The string to be encoded contains characters outside of the Latin1 range.");
+    }
+    b = b << 8 | c;
+  }
+  return f;
+};
+com.cognitect.transit.util.atob = function(a) {
+  if ("undefined" != typeof atob) {
+    return atob(a);
+  }
+  a = String(a).replace(/=+$/, "");
+  if (1 == a.length % 4) {
+    throw Error("'atob' failed: The string to be decoded is not correctly encoded.");
+  }
+  for (var b = 0, c, d, e = 0, f = "";d = a.charAt(e++);~d && (c = b % 4 ? 64 * c + d : d, b++ % 4) ? f += String.fromCharCode(255 & c >> (-2 * b & 6)) : 0) {
+    d = com.cognitect.transit.util.chars.indexOf(d);
+  }
+  return f;
+};
+com.cognitect.transit.util.Uint8ToBase64 = function(a) {
+  for (var b = 0, c = a.length, d = "", e = null;b < c;) {
+    e = a.subarray(b, Math.min(b + 32768, c)), d += String.fromCharCode.apply(null, e), b += 32768;
+  }
+  return com.cognitect.transit.util.btoa(d);
+};
+com.cognitect.transit.util.Base64ToUint8 = function(a) {
+  a = com.cognitect.transit.util.atob(a);
+  for (var b = a.length, c = new Uint8Array(b), d = 0;d < b;d++) {
+    var e = a.charCodeAt(d);
+    c[d] = e;
+  }
+  return c;
 };
 com.cognitect.transit.delimiters = {};
 com.cognitect.transit.delimiters.ESC = "~";
@@ -2272,11 +2314,11 @@ Date.prototype.com$cognitect$transit$equals = function(a) {
 Date.prototype.com$cognitect$transit$hashCode = function() {
   return this.valueOf();
 };
-com.cognitect.transit.types.binary = function(a) {
-  return com.cognitect.transit.types.taggedValue("b", a);
+com.cognitect.transit.types.binary = function(a, b) {
+  return b && !1 === b.preferBuffers || "undefined" == typeof Buffer ? "undefined" != typeof Uint8Array ? com.cognitect.transit.util.Base64ToUint8(a) : com.cognitect.transit.types.taggedValue("b", a) : new Buffer(a, "base64");
 };
 com.cognitect.transit.types.isBinary = function(a) {
-  return a instanceof com.cognitect.transit.types.TaggedValue && "b" === a.tag;
+  return "undefined" != typeof Buffer && a instanceof Buffer ? !0 : "undefined" != typeof Uint8Array && a instanceof Uint8Array ? !0 : a instanceof com.cognitect.transit.types.TaggedValue && "b" === a.tag;
 };
 com.cognitect.transit.types.uri = function(a) {
   return com.cognitect.transit.types.taggedValue("r", a);
@@ -2779,6 +2821,9 @@ com.cognitect.transit.caching.WriteCache.prototype.clear = function() {
   this.idx = 0;
   this.gen++;
 };
+com.cognitect.transit.caching.writeCache = function() {
+  return new com.cognitect.transit.caching.WriteCache;
+};
 com.cognitect.transit.caching.isCacheCode = function(a) {
   return a.charAt(0) === com.cognitect.transit.delimiters.SUB && " " !== a.charAt(1);
 };
@@ -2805,6 +2850,9 @@ com.cognitect.transit.caching.ReadCache.prototype.read = function(a, b) {
 };
 com.cognitect.transit.caching.ReadCache.prototype.clear = function() {
   this.idx = 0;
+};
+com.cognitect.transit.caching.readCache = function() {
+  return new com.cognitect.transit.caching.ReadCache;
 };
 com.cognitect.transit.impl = {};
 com.cognitect.transit.impl.decoder = {};
@@ -2853,53 +2901,54 @@ com.cognitect.transit.impl.decoder.Decoder = function(a) {
     this.handlers[b] = this.options.handlers[b];
   }
   this.preferStrings = null != this.options.preferStrings ? this.options.preferStrings : this.defaults.preferStrings;
+  this.preferBuffers = null != this.options.preferBuffers ? this.options.preferBuffers : this.defaults.preferBuffers;
   this.defaultHandler = this.options.defaultHandler || this.defaults.defaultHandler;
   this.mapBuilder = this.options.mapBuilder;
   this.arrayBuilder = this.options.arrayBuilder;
 };
-com.cognitect.transit.impl.decoder.Decoder.prototype.defaults = {handlers:{_:function(a) {
+com.cognitect.transit.impl.decoder.Decoder.prototype.defaults = {handlers:{_:function(a, b) {
   return com.cognitect.transit.types.nullValue();
-}, "?":function(a) {
+}, "?":function(a, b) {
   return com.cognitect.transit.types.boolValue(a);
-}, b:function(a) {
-  return com.cognitect.transit.types.binary(a);
-}, i:function(a) {
+}, b:function(a, b) {
+  return com.cognitect.transit.types.binary(a, b);
+}, i:function(a, b) {
   return com.cognitect.transit.types.intValue(a);
-}, n:function(a) {
+}, n:function(a, b) {
   return com.cognitect.transit.types.bigInteger(a);
-}, d:function(a) {
+}, d:function(a, b) {
   return com.cognitect.transit.types.floatValue(a);
-}, f:function(a) {
+}, f:function(a, b) {
   return com.cognitect.transit.types.bigDecimalValue(a);
-}, c:function(a) {
+}, c:function(a, b) {
   return com.cognitect.transit.types.charValue(a);
-}, ":":function(a) {
+}, ":":function(a, b) {
   return com.cognitect.transit.types.keyword(a);
-}, $:function(a) {
+}, $:function(a, b) {
   return com.cognitect.transit.types.symbol(a);
-}, r:function(a) {
+}, r:function(a, b) {
   return com.cognitect.transit.types.uri(a);
-}, z:function(a) {
+}, z:function(a, b) {
   return com.cognitect.transit.types.specialDouble(a);
-}, "'":function(a) {
+}, "'":function(a, b) {
   return a;
-}, m:function(a) {
+}, m:function(a, b) {
   return com.cognitect.transit.types.date(a);
-}, t:function(a) {
+}, t:function(a, b) {
   return com.cognitect.transit.types.verboseDate(a);
-}, u:function(a) {
+}, u:function(a, b) {
   return com.cognitect.transit.types.uuid(a);
-}, set:function(a) {
+}, set:function(a, b) {
   return com.cognitect.transit.types.set(a);
-}, list:function(a) {
+}, list:function(a, b) {
   return com.cognitect.transit.types.list(a);
-}, link:function(a) {
+}, link:function(a, b) {
   return com.cognitect.transit.types.link(a);
-}, cmap:function(a) {
+}, cmap:function(a, b) {
   return com.cognitect.transit.types.map(a, !1);
 }}, defaultHandler:function(a, b) {
   return com.cognitect.transit.types.taggedValue(a, b);
-}, preferStrings:!0};
+}, preferStrings:!0, preferBuffers:!0};
 com.cognitect.transit.impl.decoder.Decoder.prototype.decode = function(a, b, c, d) {
   if (null == a) {
     return null;
@@ -2921,7 +2970,7 @@ com.cognitect.transit.impl.decoder.Decoder.prototype.decodeHash = function(a, b,
   var e = c[0];
   d = 1 == c.length ? this.decode(e, b, !1, !1) : null;
   if (com.cognitect.transit.impl.decoder.isTag(d)) {
-    return a = a[e], c = this.handlers[d.str], null != c ? c(this.decode(a, b, !1, !0)) : com.cognitect.transit.types.taggedValue(d.str, this.decode(a, b, !1, !1));
+    return a = a[e], c = this.handlers[d.str], null != c ? c(this.decode(a, b, !1, !0), this) : com.cognitect.transit.types.taggedValue(d.str, this.decode(a, b, !1, !1));
   }
   if (this.mapBuilder) {
     if (c.length < 2 * com.cognitect.transit.types.SMALL_ARRAY_MAP_THRESHOLD && this.mapBuilder.fromArray) {
@@ -2974,7 +3023,7 @@ com.cognitect.transit.impl.decoder.Decoder.prototype.decodeArray = function(a, b
   }
   e = b && b.idx;
   if (2 === a.length && "string" === typeof a[0] && (d = this.decode(a[0], b, !1, !1), com.cognitect.transit.impl.decoder.isTag(d))) {
-    return a = a[1], e = this.handlers[d.str], null != e ? e = e(this.decode(a, b, c, !0)) : com.cognitect.transit.types.taggedValue(d.str, this.decode(a, b, c, !1));
+    return a = a[1], e = this.handlers[d.str], null != e ? e = e(this.decode(a, b, c, !0), this) : com.cognitect.transit.types.taggedValue(d.str, this.decode(a, b, c, !1));
   }
   b && e != b.idx && (b.idx = e);
   if (this.arrayBuilder) {
@@ -3007,7 +3056,7 @@ com.cognitect.transit.impl.decoder.Decoder.prototype.parseString = function(a, b
       return com.cognitect.transit.impl.decoder.tag(a.substring(2));
     }
     c = this.handlers[b];
-    return null == c ? this.defaultHandler(b, a.substring(2)) : c(a.substring(2));
+    return null == c ? this.defaultHandler(b, a.substring(2)) : c(a.substring(2), this);
   }
   return a;
 };
@@ -3256,6 +3305,28 @@ com.cognitect.transit.handlers.TransitMapHandler.prototype.rep = function(a) {
 com.cognitect.transit.handlers.TransitMapHandler.prototype.stringRep = function(a, b) {
   return null;
 };
+com.cognitect.transit.handlers.BufferHandler = function() {
+};
+com.cognitect.transit.handlers.BufferHandler.prototype.tag = function(a) {
+  return "b";
+};
+com.cognitect.transit.handlers.BufferHandler.prototype.rep = function(a) {
+  return a.toString("base64");
+};
+com.cognitect.transit.handlers.BufferHandler.prototype.stringRep = function(a, b) {
+  return null;
+};
+com.cognitect.transit.handlers.Uint8ArrayHandler = function() {
+};
+com.cognitect.transit.handlers.Uint8ArrayHandler.prototype.tag = function(a) {
+  return "b";
+};
+com.cognitect.transit.handlers.Uint8ArrayHandler.prototype.rep = function(a) {
+  return com.cognitect.transit.util.Uint8ToBase64(a);
+};
+com.cognitect.transit.handlers.Uint8ArrayHandler.prototype.stringRep = function(a, b) {
+  return null;
+};
 com.cognitect.transit.handlers.defaultHandlers = function(a) {
   a.set(null, new com.cognitect.transit.handlers.NilHandler);
   a.set(String, new com.cognitect.transit.handlers.StringHandler);
@@ -3272,6 +3343,8 @@ com.cognitect.transit.handlers.defaultHandlers = function(a) {
   a.set(com.cognitect.transit.types.TransitSet, new com.cognitect.transit.handlers.TransitSetHandler);
   a.set(com.cognitect.transit.types.TransitArrayMap, new com.cognitect.transit.handlers.TransitArrayMapHandler);
   a.set(com.cognitect.transit.types.TransitMap, new com.cognitect.transit.handlers.TransitMapHandler);
+  "undefined" != typeof Buffer && a.set(Buffer, new com.cognitect.transit.handlers.BufferHandler);
+  "undefined" != typeof Uint8Array && a.set(Uint8Array, new com.cognitect.transit.handlers.Uint8ArrayHandler);
   return a;
 };
 com.cognitect.transit.handlers.Handlers = function() {
@@ -3653,6 +3726,8 @@ com.cognitect.transit.mapToObject = function(a) {
   return b;
 };
 com.cognitect.transit.decoder = com.cognitect.transit.impl.decoder.decoder;
+com.cognitect.transit.readCache = com.cognitect.transit.caching.readCache;
+com.cognitect.transit.writeCache = com.cognitect.transit.caching.writeCache;
 com.cognitect.transit.UUIDfromString = com.cognitect.transit.types.UUIDfromString;
 com.cognitect.transit.randomUUID = com.cognitect.transit.types.randomUUID;
 com.cognitect.transit.stringableKeys = com.cognitect.transit.impl.writer.stringableKeys;
@@ -3662,9 +3737,9 @@ goog.exportSymbol("transit.keyword", com.cognitect.transit.types.keyword), goog.
 goog.exportSymbol("transit.isURI", com.cognitect.transit.types.isURI), goog.exportSymbol("transit.map", com.cognitect.transit.types.map), goog.exportSymbol("transit.isMap", com.cognitect.transit.types.isMap), goog.exportSymbol("transit.set", com.cognitect.transit.types.set), goog.exportSymbol("transit.isSet", com.cognitect.transit.types.isSet), goog.exportSymbol("transit.list", com.cognitect.transit.types.list), goog.exportSymbol("transit.isList", com.cognitect.transit.types.isList), goog.exportSymbol("transit.quoted", 
 com.cognitect.transit.types.quoted), goog.exportSymbol("transit.isQuoted", com.cognitect.transit.types.isQuoted), goog.exportSymbol("transit.tagged", com.cognitect.transit.types.taggedValue), goog.exportSymbol("transit.isTaggedValue", com.cognitect.transit.types.isTaggedValue), goog.exportSymbol("transit.link", com.cognitect.transit.types.link), goog.exportSymbol("transit.isLink", com.cognitect.transit.types.isLink), goog.exportSymbol("transit.hash", com.cognitect.transit.eq.hashCode), goog.exportSymbol("transit.hashMapLike", 
 com.cognitect.transit.eq.hashMapLike), goog.exportSymbol("transit.hashArrayLike", com.cognitect.transit.eq.hashArrayLike), goog.exportSymbol("transit.equals", com.cognitect.transit.eq.equals), goog.exportSymbol("transit.extendToEQ", com.cognitect.transit.eq.extendToEQ), goog.exportSymbol("transit.mapToObject", com.cognitect.transit.mapToObject), goog.exportSymbol("transit.decoder", com.cognitect.transit.impl.decoder.decoder), goog.exportSymbol("transit.UUIDfromString", com.cognitect.transit.types.UUIDfromString), 
-goog.exportSymbol("transit.randomUUID", com.cognitect.transit.types.randomUUID), goog.exportSymbol("transit.stringableKeys", com.cognitect.transit.impl.writer.stringableKeys));
+goog.exportSymbol("transit.randomUUID", com.cognitect.transit.types.randomUUID), goog.exportSymbol("transit.stringableKeys", com.cognitect.transit.impl.writer.stringableKeys), goog.exportSymbol("transit.readCache", com.cognitect.transit.caching.readCache), goog.exportSymbol("transit.writeCache", com.cognitect.transit.caching.writeCache));
 TRANSIT_NODE_TARGET && (module.exports = {reader:com.cognitect.transit.reader, writer:com.cognitect.transit.writer, makeBuilder:com.cognitect.transit.makeBuilder, makeWriteHandler:com.cognitect.transit.makeWriteHandler, date:com.cognitect.transit.types.date, integer:com.cognitect.transit.types.intValue, isInteger:com.cognitect.transit.types.isInteger, uuid:com.cognitect.transit.types.uuid, isUUID:com.cognitect.transit.types.isUUID, bigInt:com.cognitect.transit.types.bigInteger, isBigInt:com.cognitect.transit.types.isBigInteger, 
 bigDec:com.cognitect.transit.types.bigDecimalValue, isBigDec:com.cognitect.transit.types.isBigDecimal, keyword:com.cognitect.transit.types.keyword, isKeyword:com.cognitect.transit.types.isKeyword, symbol:com.cognitect.transit.types.symbol, isSymbol:com.cognitect.transit.types.isSymbol, binary:com.cognitect.transit.types.binary, isBinary:com.cognitect.transit.types.isBinary, uri:com.cognitect.transit.types.uri, isURI:com.cognitect.transit.types.isURI, map:com.cognitect.transit.types.map, isMap:com.cognitect.transit.types.isMap, 
 set:com.cognitect.transit.types.set, isSet:com.cognitect.transit.types.isSet, list:com.cognitect.transit.types.list, isList:com.cognitect.transit.types.isList, quoted:com.cognitect.transit.types.quoted, isQuoted:com.cognitect.transit.types.isQuoted, tagged:com.cognitect.transit.types.taggedValue, isTaggedValue:com.cognitect.transit.types.isTaggedValue, link:com.cognitect.transit.types.link, isLink:com.cognitect.transit.types.isLink, hash:com.cognitect.transit.eq.hashCode, hashArrayLike:com.cognitect.transit.eq.hashArrayLike, 
-hashMapLike:com.cognitect.transit.eq.hashMapLike, equals:com.cognitect.transit.eq.equals, extendToEQ:com.cognitect.transit.eq.extendToEQ, mapToObject:com.cognitect.transit.mapToObject, decoder:com.cognitect.transit.impl.decoder.decoder, UUIDfromString:com.cognitect.transit.types.UUIDfromString, randomUUID:com.cognitect.transit.types.randomUUID, stringableKeys:com.cognitect.transit.impl.writer.stringableKeys});
+hashMapLike:com.cognitect.transit.eq.hashMapLike, equals:com.cognitect.transit.eq.equals, extendToEQ:com.cognitect.transit.eq.extendToEQ, mapToObject:com.cognitect.transit.mapToObject, decoder:com.cognitect.transit.impl.decoder.decoder, UUIDfromString:com.cognitect.transit.types.UUIDfromString, randomUUID:com.cognitect.transit.types.randomUUID, stringableKeys:com.cognitect.transit.impl.writer.stringableKeys, readCache:com.cognitect.transit.caching.readCache, writeCache:com.cognitect.transit.caching.writeCache});
 
