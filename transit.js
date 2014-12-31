@@ -1,4 +1,4 @@
-// transit-js 0.8.747
+// transit-js 0.8.752
 // http://transit-format.org
 // 
 // Copyright 2014 Cognitect. All Rights Reserved.
@@ -3355,6 +3355,7 @@ com.cognitect.transit.handlers.Handlers.prototype.get = function(a) {
   var b = null, b = "string" === typeof a ? this.handlers[a] : this.handlers[com.cognitect.transit.handlers.typeTag(a)];
   return null != b ? b : this.handlers["default"];
 };
+com.cognitect.transit.handlers.Handlers.prototype.get = com.cognitect.transit.handlers.Handlers.prototype.get;
 com.cognitect.transit.handlers.validTag = function(a) {
   switch(a) {
     case "null":
@@ -3397,6 +3398,7 @@ com.cognitect.transit.impl.writer.JSONMarshaller = function(a) {
       b.handlers.set(d, a);
     });
   }
+  this.handlerForForeign = this.opts.handlerForForeign;
   this.unpack = this.opts.unpack || function(a) {
     return com.cognitect.transit.types.isArrayMap(a) && null === a.backingMap ? a._entries : !1;
   };
@@ -3484,8 +3486,16 @@ com.cognitect.transit.impl.writer.stringableKeys = function(a, b) {
   }
   throw Error("Cannot walk keys of object type " + com.cognitect.transit.handlers.constructor(b).name);
 };
+com.cognitect.transit.impl.writer.isForeignObject = function(a) {
+  if (a.constructor.transit$isObject) {
+    return!0;
+  }
+  var b = a.constructor.toString(), b = b.substr(9), b = b.substr(0, b.indexOf("(")), b = "Object" == b;
+  "undefined" != typeof Object.defineProperty ? Object.defineProperty(a.constructor, "transit$isObject", {value:b, enumerable:!1}) : a.constructor.transit$isObject = b;
+  return b;
+};
 com.cognitect.transit.impl.writer.emitMap = function(a, b, c, d) {
-  if (b.constructor === Object || null != b.forEach) {
+  if (b.constructor === Object || null != b.forEach || a.handlerForForeign && com.cognitect.transit.impl.writer.isForeignObject(b)) {
     if (a.verbose) {
       if (null != b.forEach) {
         if (com.cognitect.transit.impl.writer.stringableKeys(a, b)) {
@@ -3586,7 +3596,7 @@ com.cognitect.transit.impl.writer.emitEncoded = function(a, b, c, d, e, f, g) {
   return com.cognitect.transit.impl.writer.emitTaggedMap(a, c, d, f, g);
 };
 com.cognitect.transit.impl.writer.marshal = function(a, b, c, d) {
-  var e = a.handler(b), f = e ? e.tag(b) : null, g = e ? e.rep(b) : null;
+  var e = a.handler(b) || (a.handlerForForeign ? a.handlerForForeign(b, a.handlers) : null), f = e ? e.tag(b) : null, g = e ? e.rep(b) : null;
   if (null != e && null != f) {
     switch(f) {
       case "_":
@@ -3615,7 +3625,7 @@ com.cognitect.transit.impl.writer.marshal = function(a, b, c, d) {
   }
 };
 com.cognitect.transit.impl.writer.maybeQuoted = function(a, b) {
-  var c = a.handler(b);
+  var c = a.handler(b) || (a.handlerForForeign ? a.handlerForForeign(b, a.handlers) : null);
   if (null != c) {
     return 1 === c.tag(b).length ? com.cognitect.transit.types.quoted(b) : b;
   }
