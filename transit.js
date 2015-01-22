@@ -1,4 +1,4 @@
-// transit-js 0.8.752
+// transit-js 0.8.756
 // http://transit-format.org
 // 
 // Copyright 2014 Cognitect. All Rights Reserved.
@@ -3469,13 +3469,13 @@ com.cognitect.transit.impl.writer.stringableKeys = function(a, b) {
     }
     return d;
   }
-  if (b.keys && (c = b.keys(), c.next)) {
-    for (step = c.next();!step.done;) {
-      d = com.cognitect.transit.impl.writer.isStringableKey(a, step.value);
+  if (b.keys && (c = b.keys(), e = null, c.next)) {
+    for (e = c.next();!e.done;) {
+      d = com.cognitect.transit.impl.writer.isStringableKey(a, e.value);
       if (!d) {
         break;
       }
-      step = c.next();
+      e = c.next();
     }
     return d;
   }
