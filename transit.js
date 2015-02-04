@@ -1,4 +1,4 @@
-// transit-js 0.8.758
+// transit-js 0.8.760
 // http://transit-format.org
 // 
 // Copyright 2014 Cognitect. All Rights Reserved.
@@ -3485,7 +3485,11 @@ com.cognitect.transit.impl.writer.JSONMarshaller = function(a) {
     }
     var b = this;
     a.forEach(function(a, d) {
-      b.handlers.set(d, a);
+      if (void 0 !== d) {
+        b.handlers.set(d, a);
+      } else {
+        throw Error("Cannot create handler for JavaScript undefined");
+      }
     });
   }
   this.handlerForForeign = this.opts.handlerForForeign;
