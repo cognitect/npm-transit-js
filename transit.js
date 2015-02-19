@@ -1,4 +1,4 @@
-// transit-js 0.8.760
+// transit-js 0.8.767
 // http://transit-format.org
 // 
 // Copyright 2014 Cognitect. All Rights Reserved.
@@ -199,7 +199,7 @@ goog.DEPENDENCIES_ENABLED && (goog.included_ = {}, goog.dependencies_ = {pathIsM
   }
 }, goog.importScript_ = function(a, b) {
   (goog.global.CLOSURE_IMPORT_SCRIPT || goog.writeScriptTag_)(a, b) && (goog.dependencies_.written[a] = !0);
-}, goog.IS_OLD_IE_ = goog.global.document && goog.global.document.all && !goog.global.atob, goog.importModule_ = function(a) {
+}, goog.IS_OLD_IE_ = !goog.global.atob && goog.global.document && goog.global.document.all, goog.importModule_ = function(a) {
   goog.importScript_("", 'goog.retrieveAndExecModule_("' + a + '");') && (goog.dependencies_.written[a] = !0);
 }, goog.queuedModules_ = [], goog.wrapModule_ = function(a, b) {
   return goog.LOAD_MODULE_USING_EVAL && goog.isDef(goog.global.JSON) ? "goog.loadModule(" + goog.global.JSON.stringify(b + "\n//# sourceURL=" + a + "\n") + ");" : 'goog.loadModule(function(exports) {"use strict";' + b + "\n;return exports});\n//# sourceURL=" + a + "\n";
@@ -619,914 +619,280 @@ goog.tagUnsealableClass = function(a) {
   !COMPILED && goog.defineClass.SEAL_CLASS_INSTANCES && (a.prototype[goog.UNSEALABLE_CONSTRUCTOR_PROPERTY_] = !0);
 };
 goog.UNSEALABLE_CONSTRUCTOR_PROPERTY_ = "goog_defineClass_legacy_unsealable";
-goog.debug = {};
-goog.debug.Error = function(a) {
-  if (Error.captureStackTrace) {
-    Error.captureStackTrace(this, goog.debug.Error);
-  } else {
-    var b = Error().stack;
-    b && (this.stack = b);
-  }
-  a && (this.message = String(a));
+goog.math = {};
+goog.math.Long = function(a, b) {
+  this.low_ = a | 0;
+  this.high_ = b | 0;
 };
-goog.inherits(goog.debug.Error, Error);
-goog.debug.Error.prototype.name = "CustomError";
-goog.dom = {};
-goog.dom.NodeType = {ELEMENT:1, ATTRIBUTE:2, TEXT:3, CDATA_SECTION:4, ENTITY_REFERENCE:5, ENTITY:6, PROCESSING_INSTRUCTION:7, COMMENT:8, DOCUMENT:9, DOCUMENT_TYPE:10, DOCUMENT_FRAGMENT:11, NOTATION:12};
-goog.string = {};
-goog.string.DETECT_DOUBLE_ESCAPING = !1;
-goog.string.FORCE_NON_DOM_HTML_UNESCAPING = !1;
-goog.string.Unicode = {NBSP:"\u00a0"};
-goog.string.startsWith = function(a, b) {
-  return 0 == a.lastIndexOf(b, 0);
-};
-goog.string.endsWith = function(a, b) {
-  var c = a.length - b.length;
-  return 0 <= c && a.indexOf(b, c) == c;
-};
-goog.string.caseInsensitiveStartsWith = function(a, b) {
-  return 0 == goog.string.caseInsensitiveCompare(b, a.substr(0, b.length));
-};
-goog.string.caseInsensitiveEndsWith = function(a, b) {
-  return 0 == goog.string.caseInsensitiveCompare(b, a.substr(a.length - b.length, b.length));
-};
-goog.string.caseInsensitiveEquals = function(a, b) {
-  return a.toLowerCase() == b.toLowerCase();
-};
-goog.string.subs = function(a, b) {
-  for (var c = a.split("%s"), d = "", e = Array.prototype.slice.call(arguments, 1);e.length && 1 < c.length;) {
-    d += c.shift() + e.shift();
-  }
-  return d + c.join("%s");
-};
-goog.string.collapseWhitespace = function(a) {
-  return a.replace(/[\s\xa0]+/g, " ").replace(/^\s+|\s+$/g, "");
-};
-goog.string.isEmptyOrWhitespace = function(a) {
-  return/^[\s\xa0]*$/.test(a);
-};
-goog.string.isEmptyString = function(a) {
-  return 0 == a.length;
-};
-goog.string.isEmpty = goog.string.isEmptyOrWhitespace;
-goog.string.isEmptyOrWhitespaceSafe = function(a) {
-  return goog.string.isEmptyOrWhitespace(goog.string.makeSafe(a));
-};
-goog.string.isEmptySafe = goog.string.isEmptyOrWhitespaceSafe;
-goog.string.isBreakingWhitespace = function(a) {
-  return!/[^\t\n\r ]/.test(a);
-};
-goog.string.isAlpha = function(a) {
-  return!/[^a-zA-Z]/.test(a);
-};
-goog.string.isNumeric = function(a) {
-  return!/[^0-9]/.test(a);
-};
-goog.string.isAlphaNumeric = function(a) {
-  return!/[^a-zA-Z0-9]/.test(a);
-};
-goog.string.isSpace = function(a) {
-  return " " == a;
-};
-goog.string.isUnicodeChar = function(a) {
-  return 1 == a.length && " " <= a && "~" >= a || "\u0080" <= a && "\ufffd" >= a;
-};
-goog.string.stripNewlines = function(a) {
-  return a.replace(/(\r\n|\r|\n)+/g, " ");
-};
-goog.string.canonicalizeNewlines = function(a) {
-  return a.replace(/(\r\n|\r|\n)/g, "\n");
-};
-goog.string.normalizeWhitespace = function(a) {
-  return a.replace(/\xa0|\s/g, " ");
-};
-goog.string.normalizeSpaces = function(a) {
-  return a.replace(/\xa0|[ \t]+/g, " ");
-};
-goog.string.collapseBreakingSpaces = function(a) {
-  return a.replace(/[\t\r\n ]+/g, " ").replace(/^[\t\r\n ]+|[\t\r\n ]+$/g, "");
-};
-goog.string.trim = goog.TRUSTED_SITE && String.prototype.trim ? function(a) {
-  return a.trim();
-} : function(a) {
-  return a.replace(/^[\s\xa0]+|[\s\xa0]+$/g, "");
-};
-goog.string.trimLeft = function(a) {
-  return a.replace(/^[\s\xa0]+/, "");
-};
-goog.string.trimRight = function(a) {
-  return a.replace(/[\s\xa0]+$/, "");
-};
-goog.string.caseInsensitiveCompare = function(a, b) {
-  var c = String(a).toLowerCase(), d = String(b).toLowerCase();
-  return c < d ? -1 : c == d ? 0 : 1;
-};
-goog.string.numerateCompareRegExp_ = /(\.\d+)|(\d+)|(\D+)/g;
-goog.string.numerateCompare = function(a, b) {
-  if (a == b) {
-    return 0;
-  }
-  if (!a) {
-    return-1;
-  }
-  if (!b) {
-    return 1;
-  }
-  for (var c = a.toLowerCase().match(goog.string.numerateCompareRegExp_), d = b.toLowerCase().match(goog.string.numerateCompareRegExp_), e = Math.min(c.length, d.length), f = 0;f < e;f++) {
-    var g = c[f], h = d[f];
-    if (g != h) {
-      return c = parseInt(g, 10), !isNaN(c) && (d = parseInt(h, 10), !isNaN(d) && c - d) ? c - d : g < h ? -1 : 1;
+goog.math.Long.IntCache_ = {};
+goog.math.Long.fromInt = function(a) {
+  if (-128 <= a && 128 > a) {
+    var b = goog.math.Long.IntCache_[a];
+    if (b) {
+      return b;
     }
   }
-  return c.length != d.length ? c.length - d.length : a < b ? -1 : 1;
-};
-goog.string.urlEncode = function(a) {
-  return encodeURIComponent(String(a));
-};
-goog.string.urlDecode = function(a) {
-  return decodeURIComponent(a.replace(/\+/g, " "));
-};
-goog.string.newLineToBr = function(a, b) {
-  return a.replace(/(\r\n|\r|\n)/g, b ? "<br />" : "<br>");
-};
-goog.string.htmlEscape = function(a, b) {
-  if (b) {
-    a = a.replace(goog.string.AMP_RE_, "&amp;").replace(goog.string.LT_RE_, "&lt;").replace(goog.string.GT_RE_, "&gt;").replace(goog.string.QUOT_RE_, "&quot;").replace(goog.string.SINGLE_QUOTE_RE_, "&#39;").replace(goog.string.NULL_RE_, "&#0;"), goog.string.DETECT_DOUBLE_ESCAPING && (a = a.replace(goog.string.E_RE_, "&#101;"));
-  } else {
-    if (!goog.string.ALL_RE_.test(a)) {
-      return a;
-    }
-    -1 != a.indexOf("&") && (a = a.replace(goog.string.AMP_RE_, "&amp;"));
-    -1 != a.indexOf("<") && (a = a.replace(goog.string.LT_RE_, "&lt;"));
-    -1 != a.indexOf(">") && (a = a.replace(goog.string.GT_RE_, "&gt;"));
-    -1 != a.indexOf('"') && (a = a.replace(goog.string.QUOT_RE_, "&quot;"));
-    -1 != a.indexOf("'") && (a = a.replace(goog.string.SINGLE_QUOTE_RE_, "&#39;"));
-    -1 != a.indexOf("\x00") && (a = a.replace(goog.string.NULL_RE_, "&#0;"));
-    goog.string.DETECT_DOUBLE_ESCAPING && -1 != a.indexOf("e") && (a = a.replace(goog.string.E_RE_, "&#101;"));
-  }
-  return a;
-};
-goog.string.AMP_RE_ = /&/g;
-goog.string.LT_RE_ = /</g;
-goog.string.GT_RE_ = />/g;
-goog.string.QUOT_RE_ = /"/g;
-goog.string.SINGLE_QUOTE_RE_ = /'/g;
-goog.string.NULL_RE_ = /\x00/g;
-goog.string.E_RE_ = /e/g;
-goog.string.ALL_RE_ = goog.string.DETECT_DOUBLE_ESCAPING ? /[\x00&<>"'e]/ : /[\x00&<>"']/;
-goog.string.unescapeEntities = function(a) {
-  return goog.string.contains(a, "&") ? !goog.string.FORCE_NON_DOM_HTML_UNESCAPING && "document" in goog.global ? goog.string.unescapeEntitiesUsingDom_(a) : goog.string.unescapePureXmlEntities_(a) : a;
-};
-goog.string.unescapeEntitiesWithDocument = function(a, b) {
-  return goog.string.contains(a, "&") ? goog.string.unescapeEntitiesUsingDom_(a, b) : a;
-};
-goog.string.unescapeEntitiesUsingDom_ = function(a, b) {
-  var c = {"&amp;":"&", "&lt;":"<", "&gt;":">", "&quot;":'"'}, d;
-  d = b ? b.createElement("div") : goog.global.document.createElement("div");
-  return a.replace(goog.string.HTML_ENTITY_PATTERN_, function(a, b) {
-    var g = c[a];
-    if (g) {
-      return g;
-    }
-    if ("#" == b.charAt(0)) {
-      var h = Number("0" + b.substr(1));
-      isNaN(h) || (g = String.fromCharCode(h));
-    }
-    g || (d.innerHTML = a + " ", g = d.firstChild.nodeValue.slice(0, -1));
-    return c[a] = g;
-  });
-};
-goog.string.unescapePureXmlEntities_ = function(a) {
-  return a.replace(/&([^;]+);/g, function(a, c) {
-    switch(c) {
-      case "amp":
-        return "&";
-      case "lt":
-        return "<";
-      case "gt":
-        return ">";
-      case "quot":
-        return'"';
-      default:
-        if ("#" == c.charAt(0)) {
-          var d = Number("0" + c.substr(1));
-          if (!isNaN(d)) {
-            return String.fromCharCode(d);
-          }
-        }
-        return a;
-    }
-  });
-};
-goog.string.HTML_ENTITY_PATTERN_ = /&([^;\s<&]+);?/g;
-goog.string.whitespaceEscape = function(a, b) {
-  return goog.string.newLineToBr(a.replace(/  /g, " &#160;"), b);
-};
-goog.string.preserveSpaces = function(a) {
-  return a.replace(/(^|[\n ]) /g, "$1" + goog.string.Unicode.NBSP);
-};
-goog.string.stripQuotes = function(a, b) {
-  for (var c = b.length, d = 0;d < c;d++) {
-    var e = 1 == c ? b : b.charAt(d);
-    if (a.charAt(0) == e && a.charAt(a.length - 1) == e) {
-      return a.substring(1, a.length - 1);
-    }
-  }
-  return a;
-};
-goog.string.truncate = function(a, b, c) {
-  c && (a = goog.string.unescapeEntities(a));
-  a.length > b && (a = a.substring(0, b - 3) + "...");
-  c && (a = goog.string.htmlEscape(a));
-  return a;
-};
-goog.string.truncateMiddle = function(a, b, c, d) {
-  c && (a = goog.string.unescapeEntities(a));
-  if (d && a.length > b) {
-    d > b && (d = b);
-    var e = a.length - d;
-    a = a.substring(0, b - d) + "..." + a.substring(e);
-  } else {
-    a.length > b && (d = Math.floor(b / 2), e = a.length - d, a = a.substring(0, d + b % 2) + "..." + a.substring(e));
-  }
-  c && (a = goog.string.htmlEscape(a));
-  return a;
-};
-goog.string.specialEscapeChars_ = {"\x00":"\\0", "\b":"\\b", "\f":"\\f", "\n":"\\n", "\r":"\\r", "\t":"\\t", "\x0B":"\\x0B", '"':'\\"', "\\":"\\\\"};
-goog.string.jsEscapeCache_ = {"'":"\\'"};
-goog.string.quote = function(a) {
-  a = String(a);
-  if (a.quote) {
-    return a.quote();
-  }
-  for (var b = ['"'], c = 0;c < a.length;c++) {
-    var d = a.charAt(c), e = d.charCodeAt(0);
-    b[c + 1] = goog.string.specialEscapeChars_[d] || (31 < e && 127 > e ? d : goog.string.escapeChar(d));
-  }
-  b.push('"');
-  return b.join("");
-};
-goog.string.escapeString = function(a) {
-  for (var b = [], c = 0;c < a.length;c++) {
-    b[c] = goog.string.escapeChar(a.charAt(c));
-  }
-  return b.join("");
-};
-goog.string.escapeChar = function(a) {
-  if (a in goog.string.jsEscapeCache_) {
-    return goog.string.jsEscapeCache_[a];
-  }
-  if (a in goog.string.specialEscapeChars_) {
-    return goog.string.jsEscapeCache_[a] = goog.string.specialEscapeChars_[a];
-  }
-  var b = a, c = a.charCodeAt(0);
-  if (31 < c && 127 > c) {
-    b = a;
-  } else {
-    if (256 > c) {
-      if (b = "\\x", 16 > c || 256 < c) {
-        b += "0";
-      }
-    } else {
-      b = "\\u", 4096 > c && (b += "0");
-    }
-    b += c.toString(16).toUpperCase();
-  }
-  return goog.string.jsEscapeCache_[a] = b;
-};
-goog.string.contains = function(a, b) {
-  return-1 != a.indexOf(b);
-};
-goog.string.caseInsensitiveContains = function(a, b) {
-  return goog.string.contains(a.toLowerCase(), b.toLowerCase());
-};
-goog.string.countOf = function(a, b) {
-  return a && b ? a.split(b).length - 1 : 0;
-};
-goog.string.removeAt = function(a, b, c) {
-  var d = a;
-  0 <= b && b < a.length && 0 < c && (d = a.substr(0, b) + a.substr(b + c, a.length - b - c));
-  return d;
-};
-goog.string.remove = function(a, b) {
-  var c = new RegExp(goog.string.regExpEscape(b), "");
-  return a.replace(c, "");
-};
-goog.string.removeAll = function(a, b) {
-  var c = new RegExp(goog.string.regExpEscape(b), "g");
-  return a.replace(c, "");
-};
-goog.string.regExpEscape = function(a) {
-  return String(a).replace(/([-()\[\]{}+?*.$\^|,:#<!\\])/g, "\\$1").replace(/\x08/g, "\\x08");
-};
-goog.string.repeat = function(a, b) {
-  return Array(b + 1).join(a);
-};
-goog.string.padNumber = function(a, b, c) {
-  a = goog.isDef(c) ? a.toFixed(c) : String(a);
-  c = a.indexOf(".");
-  -1 == c && (c = a.length);
-  return goog.string.repeat("0", Math.max(0, b - c)) + a;
-};
-goog.string.makeSafe = function(a) {
-  return null == a ? "" : String(a);
-};
-goog.string.buildString = function(a) {
-  return Array.prototype.join.call(arguments, "");
-};
-goog.string.getRandomString = function() {
-  return Math.floor(2147483648 * Math.random()).toString(36) + Math.abs(Math.floor(2147483648 * Math.random()) ^ goog.now()).toString(36);
-};
-goog.string.compareVersions = function(a, b) {
-  for (var c = 0, d = goog.string.trim(String(a)).split("."), e = goog.string.trim(String(b)).split("."), f = Math.max(d.length, e.length), g = 0;0 == c && g < f;g++) {
-    var h = d[g] || "", l = e[g] || "", k = RegExp("(\\d*)(\\D*)", "g"), m = RegExp("(\\d*)(\\D*)", "g");
-    do {
-      var n = k.exec(h) || ["", "", ""], p = m.exec(l) || ["", "", ""];
-      if (0 == n[0].length && 0 == p[0].length) {
-        break;
-      }
-      var c = 0 == n[1].length ? 0 : parseInt(n[1], 10), q = 0 == p[1].length ? 0 : parseInt(p[1], 10), c = goog.string.compareElements_(c, q) || goog.string.compareElements_(0 == n[2].length, 0 == p[2].length) || goog.string.compareElements_(n[2], p[2]);
-    } while (0 == c);
-  }
-  return c;
-};
-goog.string.compareElements_ = function(a, b) {
-  return a < b ? -1 : a > b ? 1 : 0;
-};
-goog.string.HASHCODE_MAX_ = 4294967296;
-goog.string.hashCode = function(a) {
-  for (var b = 0, c = 0;c < a.length;++c) {
-    b = 31 * b + a.charCodeAt(c), b %= goog.string.HASHCODE_MAX_;
-  }
+  b = new goog.math.Long(a | 0, 0 > a ? -1 : 0);
+  -128 <= a && 128 > a && (goog.math.Long.IntCache_[a] = b);
   return b;
 };
-goog.string.uniqueStringCounter_ = 2147483648 * Math.random() | 0;
-goog.string.createUniqueString = function() {
-  return "goog_" + goog.string.uniqueStringCounter_++;
+goog.math.Long.fromNumber = function(a) {
+  return isNaN(a) || !isFinite(a) ? goog.math.Long.ZERO : a <= -goog.math.Long.TWO_PWR_63_DBL_ ? goog.math.Long.MIN_VALUE : a + 1 >= goog.math.Long.TWO_PWR_63_DBL_ ? goog.math.Long.MAX_VALUE : 0 > a ? goog.math.Long.fromNumber(-a).negate() : new goog.math.Long(a % goog.math.Long.TWO_PWR_32_DBL_ | 0, a / goog.math.Long.TWO_PWR_32_DBL_ | 0);
 };
-goog.string.toNumber = function(a) {
-  var b = Number(a);
-  return 0 == b && goog.string.isEmptyOrWhitespace(a) ? NaN : b;
+goog.math.Long.fromBits = function(a, b) {
+  return new goog.math.Long(a, b);
 };
-goog.string.isLowerCamelCase = function(a) {
-  return/^[a-z]+([A-Z][a-z]*)*$/.test(a);
-};
-goog.string.isUpperCamelCase = function(a) {
-  return/^([A-Z][a-z]*)+$/.test(a);
-};
-goog.string.toCamelCase = function(a) {
-  return String(a).replace(/\-([a-z])/g, function(a, c) {
-    return c.toUpperCase();
-  });
-};
-goog.string.toSelectorCase = function(a) {
-  return String(a).replace(/([A-Z])/g, "-$1").toLowerCase();
-};
-goog.string.toTitleCase = function(a, b) {
-  var c = goog.isString(b) ? goog.string.regExpEscape(b) : "\\s";
-  return a.replace(new RegExp("(^" + (c ? "|[" + c + "]+" : "") + ")([a-z])", "g"), function(a, b, c) {
-    return b + c.toUpperCase();
-  });
-};
-goog.string.capitalize = function(a) {
-  return String(a.charAt(0)).toUpperCase() + String(a.substr(1)).toLowerCase();
-};
-goog.string.parseInt = function(a) {
-  isFinite(a) && (a = String(a));
-  return goog.isString(a) ? /^\s*-?0x/i.test(a) ? parseInt(a, 16) : parseInt(a, 10) : NaN;
-};
-goog.string.splitLimit = function(a, b, c) {
-  a = a.split(b);
-  for (var d = [];0 < c && a.length;) {
-    d.push(a.shift()), c--;
+goog.math.Long.fromString = function(a, b) {
+  if (0 == a.length) {
+    throw Error("number format error: empty string");
   }
-  a.length && d.push(a.join(b));
-  return d;
+  var c = b || 10;
+  if (2 > c || 36 < c) {
+    throw Error("radix out of range: " + c);
+  }
+  if ("-" == a.charAt(0)) {
+    return goog.math.Long.fromString(a.substring(1), c).negate();
+  }
+  if (0 <= a.indexOf("-")) {
+    throw Error('number format error: interior "-" character: ' + a);
+  }
+  for (var d = goog.math.Long.fromNumber(Math.pow(c, 8)), e = goog.math.Long.ZERO, f = 0;f < a.length;f += 8) {
+    var g = Math.min(8, a.length - f), h = parseInt(a.substring(f, f + g), c);
+    8 > g ? (g = goog.math.Long.fromNumber(Math.pow(c, g)), e = e.multiply(g).add(goog.math.Long.fromNumber(h))) : (e = e.multiply(d), e = e.add(goog.math.Long.fromNumber(h)));
+  }
+  return e;
 };
-goog.string.editDistance = function(a, b) {
-  var c = [], d = [];
-  if (a == b) {
+goog.math.Long.TWO_PWR_16_DBL_ = 65536;
+goog.math.Long.TWO_PWR_24_DBL_ = 16777216;
+goog.math.Long.TWO_PWR_32_DBL_ = goog.math.Long.TWO_PWR_16_DBL_ * goog.math.Long.TWO_PWR_16_DBL_;
+goog.math.Long.TWO_PWR_31_DBL_ = goog.math.Long.TWO_PWR_32_DBL_ / 2;
+goog.math.Long.TWO_PWR_48_DBL_ = goog.math.Long.TWO_PWR_32_DBL_ * goog.math.Long.TWO_PWR_16_DBL_;
+goog.math.Long.TWO_PWR_64_DBL_ = goog.math.Long.TWO_PWR_32_DBL_ * goog.math.Long.TWO_PWR_32_DBL_;
+goog.math.Long.TWO_PWR_63_DBL_ = goog.math.Long.TWO_PWR_64_DBL_ / 2;
+goog.math.Long.ZERO = goog.math.Long.fromInt(0);
+goog.math.Long.ONE = goog.math.Long.fromInt(1);
+goog.math.Long.NEG_ONE = goog.math.Long.fromInt(-1);
+goog.math.Long.MAX_VALUE = goog.math.Long.fromBits(-1, 2147483647);
+goog.math.Long.MIN_VALUE = goog.math.Long.fromBits(0, -2147483648);
+goog.math.Long.TWO_PWR_24_ = goog.math.Long.fromInt(16777216);
+goog.math.Long.prototype.toInt = function() {
+  return this.low_;
+};
+goog.math.Long.prototype.toNumber = function() {
+  return this.high_ * goog.math.Long.TWO_PWR_32_DBL_ + this.getLowBitsUnsigned();
+};
+goog.math.Long.prototype.toString = function(a) {
+  a = a || 10;
+  if (2 > a || 36 < a) {
+    throw Error("radix out of range: " + a);
+  }
+  if (this.isZero()) {
+    return "0";
+  }
+  if (this.isNegative()) {
+    if (this.equals(goog.math.Long.MIN_VALUE)) {
+      var b = goog.math.Long.fromNumber(a), c = this.div(b), b = c.multiply(b).subtract(this);
+      return c.toString(a) + b.toInt().toString(a);
+    }
+    return "-" + this.negate().toString(a);
+  }
+  for (var c = goog.math.Long.fromNumber(Math.pow(a, 6)), b = this, d = "";;) {
+    var e = b.div(c), f = b.subtract(e.multiply(c)).toInt().toString(a), b = e;
+    if (b.isZero()) {
+      return f + d;
+    }
+    for (;6 > f.length;) {
+      f = "0" + f;
+    }
+    d = "" + f + d;
+  }
+};
+goog.math.Long.prototype.getHighBits = function() {
+  return this.high_;
+};
+goog.math.Long.prototype.getLowBits = function() {
+  return this.low_;
+};
+goog.math.Long.prototype.getLowBitsUnsigned = function() {
+  return 0 <= this.low_ ? this.low_ : goog.math.Long.TWO_PWR_32_DBL_ + this.low_;
+};
+goog.math.Long.prototype.getNumBitsAbs = function() {
+  if (this.isNegative()) {
+    return this.equals(goog.math.Long.MIN_VALUE) ? 64 : this.negate().getNumBitsAbs();
+  }
+  for (var a = 0 != this.high_ ? this.high_ : this.low_, b = 31;0 < b && 0 == (a & 1 << b);b--) {
+  }
+  return 0 != this.high_ ? b + 33 : b + 1;
+};
+goog.math.Long.prototype.isZero = function() {
+  return 0 == this.high_ && 0 == this.low_;
+};
+goog.math.Long.prototype.isNegative = function() {
+  return 0 > this.high_;
+};
+goog.math.Long.prototype.isOdd = function() {
+  return 1 == (this.low_ & 1);
+};
+goog.math.Long.prototype.equals = function(a) {
+  return this.high_ == a.high_ && this.low_ == a.low_;
+};
+goog.math.Long.prototype.notEquals = function(a) {
+  return this.high_ != a.high_ || this.low_ != a.low_;
+};
+goog.math.Long.prototype.lessThan = function(a) {
+  return 0 > this.compare(a);
+};
+goog.math.Long.prototype.lessThanOrEqual = function(a) {
+  return 0 >= this.compare(a);
+};
+goog.math.Long.prototype.greaterThan = function(a) {
+  return 0 < this.compare(a);
+};
+goog.math.Long.prototype.greaterThanOrEqual = function(a) {
+  return 0 <= this.compare(a);
+};
+goog.math.Long.prototype.compare = function(a) {
+  if (this.equals(a)) {
     return 0;
   }
-  if (!a.length || !b.length) {
-    return Math.max(a.length, b.length);
+  var b = this.isNegative(), c = a.isNegative();
+  return b && !c ? -1 : !b && c ? 1 : this.subtract(a).isNegative() ? -1 : 1;
+};
+goog.math.Long.prototype.negate = function() {
+  return this.equals(goog.math.Long.MIN_VALUE) ? goog.math.Long.MIN_VALUE : this.not().add(goog.math.Long.ONE);
+};
+goog.math.Long.prototype.add = function(a) {
+  var b = this.high_ >>> 16, c = this.high_ & 65535, d = this.low_ >>> 16, e = a.high_ >>> 16, f = a.high_ & 65535, g = a.low_ >>> 16, h;
+  h = 0 + ((this.low_ & 65535) + (a.low_ & 65535));
+  a = 0 + (h >>> 16);
+  a += d + g;
+  d = 0 + (a >>> 16);
+  d += c + f;
+  c = 0 + (d >>> 16);
+  c = c + (b + e) & 65535;
+  return goog.math.Long.fromBits((a & 65535) << 16 | h & 65535, c << 16 | d & 65535);
+};
+goog.math.Long.prototype.subtract = function(a) {
+  return this.add(a.negate());
+};
+goog.math.Long.prototype.multiply = function(a) {
+  if (this.isZero() || a.isZero()) {
+    return goog.math.Long.ZERO;
   }
-  for (var e = 0;e < b.length + 1;e++) {
-    c[e] = e;
+  if (this.equals(goog.math.Long.MIN_VALUE)) {
+    return a.isOdd() ? goog.math.Long.MIN_VALUE : goog.math.Long.ZERO;
   }
-  for (e = 0;e < a.length;e++) {
-    d[0] = e + 1;
-    for (var f = 0;f < b.length;f++) {
-      d[f + 1] = Math.min(d[f] + 1, c[f + 1] + 1, c[f] + (a[e] != b[f]));
+  if (a.equals(goog.math.Long.MIN_VALUE)) {
+    return this.isOdd() ? goog.math.Long.MIN_VALUE : goog.math.Long.ZERO;
+  }
+  if (this.isNegative()) {
+    return a.isNegative() ? this.negate().multiply(a.negate()) : this.negate().multiply(a).negate();
+  }
+  if (a.isNegative()) {
+    return this.multiply(a.negate()).negate();
+  }
+  if (this.lessThan(goog.math.Long.TWO_PWR_24_) && a.lessThan(goog.math.Long.TWO_PWR_24_)) {
+    return goog.math.Long.fromNumber(this.toNumber() * a.toNumber());
+  }
+  var b = this.high_ >>> 16, c = this.high_ & 65535, d = this.low_ >>> 16, e = this.low_ & 65535, f = a.high_ >>> 16, g = a.high_ & 65535, h = a.low_ >>> 16;
+  a = a.low_ & 65535;
+  var m, k, l, n;
+  n = 0 + e * a;
+  l = 0 + (n >>> 16);
+  l += d * a;
+  k = 0 + (l >>> 16);
+  l = (l & 65535) + e * h;
+  k += l >>> 16;
+  l &= 65535;
+  k += c * a;
+  m = 0 + (k >>> 16);
+  k = (k & 65535) + d * h;
+  m += k >>> 16;
+  k &= 65535;
+  k += e * g;
+  m += k >>> 16;
+  k &= 65535;
+  m = m + (b * a + c * h + d * g + e * f) & 65535;
+  return goog.math.Long.fromBits(l << 16 | n & 65535, m << 16 | k);
+};
+goog.math.Long.prototype.div = function(a) {
+  if (a.isZero()) {
+    throw Error("division by zero");
+  }
+  if (this.isZero()) {
+    return goog.math.Long.ZERO;
+  }
+  if (this.equals(goog.math.Long.MIN_VALUE)) {
+    if (a.equals(goog.math.Long.ONE) || a.equals(goog.math.Long.NEG_ONE)) {
+      return goog.math.Long.MIN_VALUE;
     }
-    for (f = 0;f < c.length;f++) {
-      c[f] = d[f];
+    if (a.equals(goog.math.Long.MIN_VALUE)) {
+      return goog.math.Long.ONE;
     }
-  }
-  return d[b.length];
-};
-goog.asserts = {};
-goog.asserts.ENABLE_ASSERTS = goog.DEBUG;
-goog.asserts.AssertionError = function(a, b) {
-  b.unshift(a);
-  goog.debug.Error.call(this, goog.string.subs.apply(null, b));
-  b.shift();
-  this.messagePattern = a;
-};
-goog.inherits(goog.asserts.AssertionError, goog.debug.Error);
-goog.asserts.AssertionError.prototype.name = "AssertionError";
-goog.asserts.DEFAULT_ERROR_HANDLER = function(a) {
-  throw a;
-};
-goog.asserts.errorHandler_ = goog.asserts.DEFAULT_ERROR_HANDLER;
-goog.asserts.doAssertFailure_ = function(a, b, c, d) {
-  var e = "Assertion failed";
-  if (c) {
-    var e = e + (": " + c), f = d
-  } else {
-    a && (e += ": " + a, f = b);
-  }
-  a = new goog.asserts.AssertionError("" + e, f || []);
-  goog.asserts.errorHandler_(a);
-};
-goog.asserts.setErrorHandler = function(a) {
-  goog.asserts.ENABLE_ASSERTS && (goog.asserts.errorHandler_ = a);
-};
-goog.asserts.assert = function(a, b, c) {
-  goog.asserts.ENABLE_ASSERTS && !a && goog.asserts.doAssertFailure_("", null, b, Array.prototype.slice.call(arguments, 2));
-  return a;
-};
-goog.asserts.fail = function(a, b) {
-  goog.asserts.ENABLE_ASSERTS && goog.asserts.errorHandler_(new goog.asserts.AssertionError("Failure" + (a ? ": " + a : ""), Array.prototype.slice.call(arguments, 1)));
-};
-goog.asserts.assertNumber = function(a, b, c) {
-  goog.asserts.ENABLE_ASSERTS && !goog.isNumber(a) && goog.asserts.doAssertFailure_("Expected number but got %s: %s.", [goog.typeOf(a), a], b, Array.prototype.slice.call(arguments, 2));
-  return a;
-};
-goog.asserts.assertString = function(a, b, c) {
-  goog.asserts.ENABLE_ASSERTS && !goog.isString(a) && goog.asserts.doAssertFailure_("Expected string but got %s: %s.", [goog.typeOf(a), a], b, Array.prototype.slice.call(arguments, 2));
-  return a;
-};
-goog.asserts.assertFunction = function(a, b, c) {
-  goog.asserts.ENABLE_ASSERTS && !goog.isFunction(a) && goog.asserts.doAssertFailure_("Expected function but got %s: %s.", [goog.typeOf(a), a], b, Array.prototype.slice.call(arguments, 2));
-  return a;
-};
-goog.asserts.assertObject = function(a, b, c) {
-  goog.asserts.ENABLE_ASSERTS && !goog.isObject(a) && goog.asserts.doAssertFailure_("Expected object but got %s: %s.", [goog.typeOf(a), a], b, Array.prototype.slice.call(arguments, 2));
-  return a;
-};
-goog.asserts.assertArray = function(a, b, c) {
-  goog.asserts.ENABLE_ASSERTS && !goog.isArray(a) && goog.asserts.doAssertFailure_("Expected array but got %s: %s.", [goog.typeOf(a), a], b, Array.prototype.slice.call(arguments, 2));
-  return a;
-};
-goog.asserts.assertBoolean = function(a, b, c) {
-  goog.asserts.ENABLE_ASSERTS && !goog.isBoolean(a) && goog.asserts.doAssertFailure_("Expected boolean but got %s: %s.", [goog.typeOf(a), a], b, Array.prototype.slice.call(arguments, 2));
-  return a;
-};
-goog.asserts.assertElement = function(a, b, c) {
-  !goog.asserts.ENABLE_ASSERTS || goog.isObject(a) && a.nodeType == goog.dom.NodeType.ELEMENT || goog.asserts.doAssertFailure_("Expected Element but got %s: %s.", [goog.typeOf(a), a], b, Array.prototype.slice.call(arguments, 2));
-  return a;
-};
-goog.asserts.assertInstanceof = function(a, b, c, d) {
-  !goog.asserts.ENABLE_ASSERTS || a instanceof b || goog.asserts.doAssertFailure_("Expected instanceof %s but got %s.", [goog.asserts.getType_(b), goog.asserts.getType_(a)], c, Array.prototype.slice.call(arguments, 3));
-  return a;
-};
-goog.asserts.assertObjectPrototypeIsIntact = function() {
-  for (var a in Object.prototype) {
-    goog.asserts.fail(a + " should not be enumerable in Object.prototype.");
-  }
-};
-goog.asserts.getType_ = function(a) {
-  return a instanceof Function ? a.displayName || a.name || "unknown type name" : a instanceof Object ? a.constructor.displayName || a.constructor.name || Object.prototype.toString.call(a) : null === a ? "null" : typeof a;
-};
-goog.array = {};
-goog.NATIVE_ARRAY_PROTOTYPES = goog.TRUSTED_SITE;
-goog.array.ASSUME_NATIVE_FUNCTIONS = !1;
-goog.array.peek = function(a) {
-  return a[a.length - 1];
-};
-goog.array.last = goog.array.peek;
-goog.array.ARRAY_PROTOTYPE_ = Array.prototype;
-goog.array.indexOf = goog.NATIVE_ARRAY_PROTOTYPES && (goog.array.ASSUME_NATIVE_FUNCTIONS || goog.array.ARRAY_PROTOTYPE_.indexOf) ? function(a, b, c) {
-  goog.asserts.assert(null != a.length);
-  return goog.array.ARRAY_PROTOTYPE_.indexOf.call(a, b, c);
-} : function(a, b, c) {
-  c = null == c ? 0 : 0 > c ? Math.max(0, a.length + c) : c;
-  if (goog.isString(a)) {
-    return goog.isString(b) && 1 == b.length ? a.indexOf(b, c) : -1;
-  }
-  for (;c < a.length;c++) {
-    if (c in a && a[c] === b) {
-      return c;
+    var b = this.shiftRight(1).div(a).shiftLeft(1);
+    if (b.equals(goog.math.Long.ZERO)) {
+      return a.isNegative() ? goog.math.Long.ONE : goog.math.Long.NEG_ONE;
     }
+    var c = this.subtract(a.multiply(b));
+    return b.add(c.div(a));
   }
-  return-1;
-};
-goog.array.lastIndexOf = goog.NATIVE_ARRAY_PROTOTYPES && (goog.array.ASSUME_NATIVE_FUNCTIONS || goog.array.ARRAY_PROTOTYPE_.lastIndexOf) ? function(a, b, c) {
-  goog.asserts.assert(null != a.length);
-  return goog.array.ARRAY_PROTOTYPE_.lastIndexOf.call(a, b, null == c ? a.length - 1 : c);
-} : function(a, b, c) {
-  c = null == c ? a.length - 1 : c;
-  0 > c && (c = Math.max(0, a.length + c));
-  if (goog.isString(a)) {
-    return goog.isString(b) && 1 == b.length ? a.lastIndexOf(b, c) : -1;
+  if (a.equals(goog.math.Long.MIN_VALUE)) {
+    return goog.math.Long.ZERO;
   }
-  for (;0 <= c;c--) {
-    if (c in a && a[c] === b) {
-      return c;
+  if (this.isNegative()) {
+    return a.isNegative() ? this.negate().div(a.negate()) : this.negate().div(a).negate();
+  }
+  if (a.isNegative()) {
+    return this.div(a.negate()).negate();
+  }
+  for (var d = goog.math.Long.ZERO, c = this;c.greaterThanOrEqual(a);) {
+    for (var b = Math.max(1, Math.floor(c.toNumber() / a.toNumber())), e = Math.ceil(Math.log(b) / Math.LN2), e = 48 >= e ? 1 : Math.pow(2, e - 48), f = goog.math.Long.fromNumber(b), g = f.multiply(a);g.isNegative() || g.greaterThan(c);) {
+      b -= e, f = goog.math.Long.fromNumber(b), g = f.multiply(a);
     }
-  }
-  return-1;
-};
-goog.array.forEach = goog.NATIVE_ARRAY_PROTOTYPES && (goog.array.ASSUME_NATIVE_FUNCTIONS || goog.array.ARRAY_PROTOTYPE_.forEach) ? function(a, b, c) {
-  goog.asserts.assert(null != a.length);
-  goog.array.ARRAY_PROTOTYPE_.forEach.call(a, b, c);
-} : function(a, b, c) {
-  for (var d = a.length, e = goog.isString(a) ? a.split("") : a, f = 0;f < d;f++) {
-    f in e && b.call(c, e[f], f, a);
-  }
-};
-goog.array.forEachRight = function(a, b, c) {
-  for (var d = a.length, e = goog.isString(a) ? a.split("") : a, d = d - 1;0 <= d;--d) {
-    d in e && b.call(c, e[d], d, a);
-  }
-};
-goog.array.filter = goog.NATIVE_ARRAY_PROTOTYPES && (goog.array.ASSUME_NATIVE_FUNCTIONS || goog.array.ARRAY_PROTOTYPE_.filter) ? function(a, b, c) {
-  goog.asserts.assert(null != a.length);
-  return goog.array.ARRAY_PROTOTYPE_.filter.call(a, b, c);
-} : function(a, b, c) {
-  for (var d = a.length, e = [], f = 0, g = goog.isString(a) ? a.split("") : a, h = 0;h < d;h++) {
-    if (h in g) {
-      var l = g[h];
-      b.call(c, l, h, a) && (e[f++] = l);
-    }
-  }
-  return e;
-};
-goog.array.map = goog.NATIVE_ARRAY_PROTOTYPES && (goog.array.ASSUME_NATIVE_FUNCTIONS || goog.array.ARRAY_PROTOTYPE_.map) ? function(a, b, c) {
-  goog.asserts.assert(null != a.length);
-  return goog.array.ARRAY_PROTOTYPE_.map.call(a, b, c);
-} : function(a, b, c) {
-  for (var d = a.length, e = Array(d), f = goog.isString(a) ? a.split("") : a, g = 0;g < d;g++) {
-    g in f && (e[g] = b.call(c, f[g], g, a));
-  }
-  return e;
-};
-goog.array.reduce = goog.NATIVE_ARRAY_PROTOTYPES && (goog.array.ASSUME_NATIVE_FUNCTIONS || goog.array.ARRAY_PROTOTYPE_.reduce) ? function(a, b, c, d) {
-  goog.asserts.assert(null != a.length);
-  d && (b = goog.bind(b, d));
-  return goog.array.ARRAY_PROTOTYPE_.reduce.call(a, b, c);
-} : function(a, b, c, d) {
-  var e = c;
-  goog.array.forEach(a, function(c, g) {
-    e = b.call(d, e, c, g, a);
-  });
-  return e;
-};
-goog.array.reduceRight = goog.NATIVE_ARRAY_PROTOTYPES && (goog.array.ASSUME_NATIVE_FUNCTIONS || goog.array.ARRAY_PROTOTYPE_.reduceRight) ? function(a, b, c, d) {
-  goog.asserts.assert(null != a.length);
-  d && (b = goog.bind(b, d));
-  return goog.array.ARRAY_PROTOTYPE_.reduceRight.call(a, b, c);
-} : function(a, b, c, d) {
-  var e = c;
-  goog.array.forEachRight(a, function(c, g) {
-    e = b.call(d, e, c, g, a);
-  });
-  return e;
-};
-goog.array.some = goog.NATIVE_ARRAY_PROTOTYPES && (goog.array.ASSUME_NATIVE_FUNCTIONS || goog.array.ARRAY_PROTOTYPE_.some) ? function(a, b, c) {
-  goog.asserts.assert(null != a.length);
-  return goog.array.ARRAY_PROTOTYPE_.some.call(a, b, c);
-} : function(a, b, c) {
-  for (var d = a.length, e = goog.isString(a) ? a.split("") : a, f = 0;f < d;f++) {
-    if (f in e && b.call(c, e[f], f, a)) {
-      return!0;
-    }
-  }
-  return!1;
-};
-goog.array.every = goog.NATIVE_ARRAY_PROTOTYPES && (goog.array.ASSUME_NATIVE_FUNCTIONS || goog.array.ARRAY_PROTOTYPE_.every) ? function(a, b, c) {
-  goog.asserts.assert(null != a.length);
-  return goog.array.ARRAY_PROTOTYPE_.every.call(a, b, c);
-} : function(a, b, c) {
-  for (var d = a.length, e = goog.isString(a) ? a.split("") : a, f = 0;f < d;f++) {
-    if (f in e && !b.call(c, e[f], f, a)) {
-      return!1;
-    }
-  }
-  return!0;
-};
-goog.array.count = function(a, b, c) {
-  var d = 0;
-  goog.array.forEach(a, function(a, f, g) {
-    b.call(c, a, f, g) && ++d;
-  }, c);
-  return d;
-};
-goog.array.find = function(a, b, c) {
-  b = goog.array.findIndex(a, b, c);
-  return 0 > b ? null : goog.isString(a) ? a.charAt(b) : a[b];
-};
-goog.array.findIndex = function(a, b, c) {
-  for (var d = a.length, e = goog.isString(a) ? a.split("") : a, f = 0;f < d;f++) {
-    if (f in e && b.call(c, e[f], f, a)) {
-      return f;
-    }
-  }
-  return-1;
-};
-goog.array.findRight = function(a, b, c) {
-  b = goog.array.findIndexRight(a, b, c);
-  return 0 > b ? null : goog.isString(a) ? a.charAt(b) : a[b];
-};
-goog.array.findIndexRight = function(a, b, c) {
-  for (var d = a.length, e = goog.isString(a) ? a.split("") : a, d = d - 1;0 <= d;d--) {
-    if (d in e && b.call(c, e[d], d, a)) {
-      return d;
-    }
-  }
-  return-1;
-};
-goog.array.contains = function(a, b) {
-  return 0 <= goog.array.indexOf(a, b);
-};
-goog.array.isEmpty = function(a) {
-  return 0 == a.length;
-};
-goog.array.clear = function(a) {
-  if (!goog.isArray(a)) {
-    for (var b = a.length - 1;0 <= b;b--) {
-      delete a[b];
-    }
-  }
-  a.length = 0;
-};
-goog.array.insert = function(a, b) {
-  goog.array.contains(a, b) || a.push(b);
-};
-goog.array.insertAt = function(a, b, c) {
-  goog.array.splice(a, c, 0, b);
-};
-goog.array.insertArrayAt = function(a, b, c) {
-  goog.partial(goog.array.splice, a, c, 0).apply(null, b);
-};
-goog.array.insertBefore = function(a, b, c) {
-  var d;
-  2 == arguments.length || 0 > (d = goog.array.indexOf(a, c)) ? a.push(b) : goog.array.insertAt(a, b, d);
-};
-goog.array.remove = function(a, b) {
-  var c = goog.array.indexOf(a, b), d;
-  (d = 0 <= c) && goog.array.removeAt(a, c);
-  return d;
-};
-goog.array.removeAt = function(a, b) {
-  goog.asserts.assert(null != a.length);
-  return 1 == goog.array.ARRAY_PROTOTYPE_.splice.call(a, b, 1).length;
-};
-goog.array.removeIf = function(a, b, c) {
-  b = goog.array.findIndex(a, b, c);
-  return 0 <= b ? (goog.array.removeAt(a, b), !0) : !1;
-};
-goog.array.removeAllIf = function(a, b, c) {
-  var d = 0;
-  goog.array.forEachRight(a, function(e, f) {
-    b.call(c, e, f, a) && goog.array.removeAt(a, f) && d++;
-  });
-  return d;
-};
-goog.array.concat = function(a) {
-  return goog.array.ARRAY_PROTOTYPE_.concat.apply(goog.array.ARRAY_PROTOTYPE_, arguments);
-};
-goog.array.join = function(a) {
-  return goog.array.ARRAY_PROTOTYPE_.concat.apply(goog.array.ARRAY_PROTOTYPE_, arguments);
-};
-goog.array.toArray = function(a) {
-  var b = a.length;
-  if (0 < b) {
-    for (var c = Array(b), d = 0;d < b;d++) {
-      c[d] = a[d];
-    }
-    return c;
-  }
-  return[];
-};
-goog.array.clone = goog.array.toArray;
-goog.array.extend = function(a, b) {
-  for (var c = 1;c < arguments.length;c++) {
-    var d = arguments[c];
-    if (goog.isArrayLike(d)) {
-      var e = a.length || 0, f = d.length || 0;
-      a.length = e + f;
-      for (var g = 0;g < f;g++) {
-        a[e + g] = d[g];
-      }
-    } else {
-      a.push(d);
-    }
-  }
-};
-goog.array.splice = function(a, b, c, d) {
-  goog.asserts.assert(null != a.length);
-  return goog.array.ARRAY_PROTOTYPE_.splice.apply(a, goog.array.slice(arguments, 1));
-};
-goog.array.slice = function(a, b, c) {
-  goog.asserts.assert(null != a.length);
-  return 2 >= arguments.length ? goog.array.ARRAY_PROTOTYPE_.slice.call(a, b) : goog.array.ARRAY_PROTOTYPE_.slice.call(a, b, c);
-};
-goog.array.removeDuplicates = function(a, b, c) {
-  b = b || a;
-  var d = function(a) {
-    return goog.isObject(g) ? "o" + goog.getUid(g) : (typeof g).charAt(0) + g;
-  };
-  c = c || d;
-  for (var d = {}, e = 0, f = 0;f < a.length;) {
-    var g = a[f++], h = c(g);
-    Object.prototype.hasOwnProperty.call(d, h) || (d[h] = !0, b[e++] = g);
-  }
-  b.length = e;
-};
-goog.array.binarySearch = function(a, b, c) {
-  return goog.array.binarySearch_(a, c || goog.array.defaultCompare, !1, b);
-};
-goog.array.binarySelect = function(a, b, c) {
-  return goog.array.binarySearch_(a, b, !0, void 0, c);
-};
-goog.array.binarySearch_ = function(a, b, c, d, e) {
-  for (var f = 0, g = a.length, h;f < g;) {
-    var l = f + g >> 1, k;
-    k = c ? b.call(e, a[l], l, a) : b(d, a[l]);
-    0 < k ? f = l + 1 : (g = l, h = !k);
-  }
-  return h ? f : ~f;
-};
-goog.array.sort = function(a, b) {
-  a.sort(b || goog.array.defaultCompare);
-};
-goog.array.stableSort = function(a, b) {
-  for (var c = 0;c < a.length;c++) {
-    a[c] = {index:c, value:a[c]};
-  }
-  var d = b || goog.array.defaultCompare;
-  goog.array.sort(a, function(a, b) {
-    return d(a.value, b.value) || a.index - b.index;
-  });
-  for (c = 0;c < a.length;c++) {
-    a[c] = a[c].value;
-  }
-};
-goog.array.sortByKey = function(a, b, c) {
-  var d = c || goog.array.defaultCompare;
-  goog.array.sort(a, function(a, c) {
-    return d(b(a), b(c));
-  });
-};
-goog.array.sortObjectsByKey = function(a, b, c) {
-  goog.array.sortByKey(a, function(a) {
-    return a[b];
-  }, c);
-};
-goog.array.isSorted = function(a, b, c) {
-  b = b || goog.array.defaultCompare;
-  for (var d = 1;d < a.length;d++) {
-    var e = b(a[d - 1], a[d]);
-    if (0 < e || 0 == e && c) {
-      return!1;
-    }
-  }
-  return!0;
-};
-goog.array.equals = function(a, b, c) {
-  if (!goog.isArrayLike(a) || !goog.isArrayLike(b) || a.length != b.length) {
-    return!1;
-  }
-  var d = a.length;
-  c = c || goog.array.defaultCompareEquality;
-  for (var e = 0;e < d;e++) {
-    if (!c(a[e], b[e])) {
-      return!1;
-    }
-  }
-  return!0;
-};
-goog.array.compare3 = function(a, b, c) {
-  c = c || goog.array.defaultCompare;
-  for (var d = Math.min(a.length, b.length), e = 0;e < d;e++) {
-    var f = c(a[e], b[e]);
-    if (0 != f) {
-      return f;
-    }
-  }
-  return goog.array.defaultCompare(a.length, b.length);
-};
-goog.array.defaultCompare = function(a, b) {
-  return a > b ? 1 : a < b ? -1 : 0;
-};
-goog.array.inverseDefaultCompare = function(a, b) {
-  return-goog.array.defaultCompare(a, b);
-};
-goog.array.defaultCompareEquality = function(a, b) {
-  return a === b;
-};
-goog.array.binaryInsert = function(a, b, c) {
-  c = goog.array.binarySearch(a, b, c);
-  return 0 > c ? (goog.array.insertAt(a, b, -(c + 1)), !0) : !1;
-};
-goog.array.binaryRemove = function(a, b, c) {
-  b = goog.array.binarySearch(a, b, c);
-  return 0 <= b ? goog.array.removeAt(a, b) : !1;
-};
-goog.array.bucket = function(a, b, c) {
-  for (var d = {}, e = 0;e < a.length;e++) {
-    var f = a[e], g = b.call(c, f, e, a);
-    goog.isDef(g) && (d[g] || (d[g] = [])).push(f);
+    f.isZero() && (f = goog.math.Long.ONE);
+    d = d.add(f);
+    c = c.subtract(g);
   }
   return d;
 };
-goog.array.toObject = function(a, b, c) {
-  var d = {};
-  goog.array.forEach(a, function(e, f) {
-    d[b.call(c, e, f, a)] = e;
-  });
-  return d;
+goog.math.Long.prototype.modulo = function(a) {
+  return this.subtract(this.div(a).multiply(a));
 };
-goog.array.range = function(a, b, c) {
-  var d = [], e = 0, f = a;
-  c = c || 1;
-  void 0 !== b && (e = a, f = b);
-  if (0 > c * (f - e)) {
-    return[];
+goog.math.Long.prototype.not = function() {
+  return goog.math.Long.fromBits(~this.low_, ~this.high_);
+};
+goog.math.Long.prototype.and = function(a) {
+  return goog.math.Long.fromBits(this.low_ & a.low_, this.high_ & a.high_);
+};
+goog.math.Long.prototype.or = function(a) {
+  return goog.math.Long.fromBits(this.low_ | a.low_, this.high_ | a.high_);
+};
+goog.math.Long.prototype.xor = function(a) {
+  return goog.math.Long.fromBits(this.low_ ^ a.low_, this.high_ ^ a.high_);
+};
+goog.math.Long.prototype.shiftLeft = function(a) {
+  a &= 63;
+  if (0 == a) {
+    return this;
   }
-  if (0 < c) {
-    for (a = e;a < f;a += c) {
-      d.push(a);
-    }
-  } else {
-    for (a = e;a > f;a += c) {
-      d.push(a);
-    }
+  var b = this.low_;
+  return 32 > a ? goog.math.Long.fromBits(b << a, this.high_ << a | b >>> 32 - a) : goog.math.Long.fromBits(0, b << a - 32);
+};
+goog.math.Long.prototype.shiftRight = function(a) {
+  a &= 63;
+  if (0 == a) {
+    return this;
   }
-  return d;
+  var b = this.high_;
+  return 32 > a ? goog.math.Long.fromBits(this.low_ >>> a | b << 32 - a, b >> a) : goog.math.Long.fromBits(b >> a - 32, 0 <= b ? 0 : -1);
 };
-goog.array.repeat = function(a, b) {
-  for (var c = [], d = 0;d < b;d++) {
-    c[d] = a;
+goog.math.Long.prototype.shiftRightUnsigned = function(a) {
+  a &= 63;
+  if (0 == a) {
+    return this;
   }
-  return c;
-};
-goog.array.flatten = function(a) {
-  for (var b = [], c = 0;c < arguments.length;c++) {
-    var d = arguments[c];
-    if (goog.isArray(d)) {
-      for (var e = 0;e < d.length;e += 8192) {
-        for (var f = goog.array.slice(d, e, e + 8192), f = goog.array.flatten.apply(null, f), g = 0;g < f.length;g++) {
-          b.push(f[g]);
-        }
-      }
-    } else {
-      b.push(d);
-    }
-  }
-  return b;
-};
-goog.array.rotate = function(a, b) {
-  goog.asserts.assert(null != a.length);
-  a.length && (b %= a.length, 0 < b ? goog.array.ARRAY_PROTOTYPE_.unshift.apply(a, a.splice(-b, b)) : 0 > b && goog.array.ARRAY_PROTOTYPE_.push.apply(a, a.splice(0, -b)));
-  return a;
-};
-goog.array.moveItem = function(a, b, c) {
-  goog.asserts.assert(0 <= b && b < a.length);
-  goog.asserts.assert(0 <= c && c < a.length);
-  b = goog.array.ARRAY_PROTOTYPE_.splice.call(a, b, 1);
-  goog.array.ARRAY_PROTOTYPE_.splice.call(a, c, 0, b[0]);
-};
-goog.array.zip = function(a) {
-  if (!arguments.length) {
-    return[];
-  }
-  for (var b = [], c = 0;;c++) {
-    for (var d = [], e = 0;e < arguments.length;e++) {
-      var f = arguments[e];
-      if (c >= f.length) {
-        return b;
-      }
-      d.push(f[c]);
-    }
-    b.push(d);
-  }
-};
-goog.array.shuffle = function(a, b) {
-  for (var c = b || Math.random, d = a.length - 1;0 < d;d--) {
-    var e = Math.floor(c() * (d + 1)), f = a[d];
-    a[d] = a[e];
-    a[e] = f;
-  }
-};
-goog.array.copyByIndex = function(a, b) {
-  var c = [];
-  goog.array.forEach(b, function(b) {
-    c.push(a[b]);
-  });
-  return c;
+  var b = this.high_;
+  return 32 > a ? goog.math.Long.fromBits(this.low_ >>> a | b << 32 - a, b >>> a) : 32 == a ? goog.math.Long.fromBits(b, 0) : goog.math.Long.fromBits(b >>> a - 32, 0);
 };
 goog.object = {};
 goog.object.forEach = function(a, b, c) {
@@ -1746,283 +1112,84 @@ goog.object.createImmutableView = function(a) {
 goog.object.isImmutableView = function(a) {
   return!!Object.isFrozen && Object.isFrozen(a);
 };
-goog.math = {};
-goog.math.Long = function(a, b) {
-  this.low_ = a | 0;
-  this.high_ = b | 0;
-};
-goog.math.Long.IntCache_ = {};
-goog.math.Long.fromInt = function(a) {
-  if (-128 <= a && 128 > a) {
-    var b = goog.math.Long.IntCache_[a];
-    if (b) {
-      return b;
-    }
-  }
-  b = new goog.math.Long(a | 0, 0 > a ? -1 : 0);
-  -128 <= a && 128 > a && (goog.math.Long.IntCache_[a] = b);
-  return b;
-};
-goog.math.Long.fromNumber = function(a) {
-  return isNaN(a) || !isFinite(a) ? goog.math.Long.ZERO : a <= -goog.math.Long.TWO_PWR_63_DBL_ ? goog.math.Long.MIN_VALUE : a + 1 >= goog.math.Long.TWO_PWR_63_DBL_ ? goog.math.Long.MAX_VALUE : 0 > a ? goog.math.Long.fromNumber(-a).negate() : new goog.math.Long(a % goog.math.Long.TWO_PWR_32_DBL_ | 0, a / goog.math.Long.TWO_PWR_32_DBL_ | 0);
-};
-goog.math.Long.fromBits = function(a, b) {
-  return new goog.math.Long(a, b);
-};
-goog.math.Long.fromString = function(a, b) {
-  if (0 == a.length) {
-    throw Error("number format error: empty string");
-  }
-  var c = b || 10;
-  if (2 > c || 36 < c) {
-    throw Error("radix out of range: " + c);
-  }
-  if ("-" == a.charAt(0)) {
-    return goog.math.Long.fromString(a.substring(1), c).negate();
-  }
-  if (0 <= a.indexOf("-")) {
-    throw Error('number format error: interior "-" character: ' + a);
-  }
-  for (var d = goog.math.Long.fromNumber(Math.pow(c, 8)), e = goog.math.Long.ZERO, f = 0;f < a.length;f += 8) {
-    var g = Math.min(8, a.length - f), h = parseInt(a.substring(f, f + g), c);
-    8 > g ? (g = goog.math.Long.fromNumber(Math.pow(c, g)), e = e.multiply(g).add(goog.math.Long.fromNumber(h))) : (e = e.multiply(d), e = e.add(goog.math.Long.fromNumber(h)));
-  }
-  return e;
-};
-goog.math.Long.TWO_PWR_16_DBL_ = 65536;
-goog.math.Long.TWO_PWR_24_DBL_ = 16777216;
-goog.math.Long.TWO_PWR_32_DBL_ = goog.math.Long.TWO_PWR_16_DBL_ * goog.math.Long.TWO_PWR_16_DBL_;
-goog.math.Long.TWO_PWR_31_DBL_ = goog.math.Long.TWO_PWR_32_DBL_ / 2;
-goog.math.Long.TWO_PWR_48_DBL_ = goog.math.Long.TWO_PWR_32_DBL_ * goog.math.Long.TWO_PWR_16_DBL_;
-goog.math.Long.TWO_PWR_64_DBL_ = goog.math.Long.TWO_PWR_32_DBL_ * goog.math.Long.TWO_PWR_32_DBL_;
-goog.math.Long.TWO_PWR_63_DBL_ = goog.math.Long.TWO_PWR_64_DBL_ / 2;
-goog.math.Long.ZERO = goog.math.Long.fromInt(0);
-goog.math.Long.ONE = goog.math.Long.fromInt(1);
-goog.math.Long.NEG_ONE = goog.math.Long.fromInt(-1);
-goog.math.Long.MAX_VALUE = goog.math.Long.fromBits(-1, 2147483647);
-goog.math.Long.MIN_VALUE = goog.math.Long.fromBits(0, -2147483648);
-goog.math.Long.TWO_PWR_24_ = goog.math.Long.fromInt(16777216);
-goog.math.Long.prototype.toInt = function() {
-  return this.low_;
-};
-goog.math.Long.prototype.toNumber = function() {
-  return this.high_ * goog.math.Long.TWO_PWR_32_DBL_ + this.getLowBitsUnsigned();
-};
-goog.math.Long.prototype.toString = function(a) {
-  a = a || 10;
-  if (2 > a || 36 < a) {
-    throw Error("radix out of range: " + a);
-  }
-  if (this.isZero()) {
-    return "0";
-  }
-  if (this.isNegative()) {
-    if (this.equals(goog.math.Long.MIN_VALUE)) {
-      var b = goog.math.Long.fromNumber(a), c = this.div(b), b = c.multiply(b).subtract(this);
-      return c.toString(a) + b.toInt().toString(a);
-    }
-    return "-" + this.negate().toString(a);
-  }
-  for (var c = goog.math.Long.fromNumber(Math.pow(a, 6)), b = this, d = "";;) {
-    var e = b.div(c), f = b.subtract(e.multiply(c)).toInt().toString(a), b = e;
-    if (b.isZero()) {
-      return f + d;
-    }
-    for (;6 > f.length;) {
-      f = "0" + f;
-    }
-    d = "" + f + d;
-  }
-};
-goog.math.Long.prototype.getHighBits = function() {
-  return this.high_;
-};
-goog.math.Long.prototype.getLowBits = function() {
-  return this.low_;
-};
-goog.math.Long.prototype.getLowBitsUnsigned = function() {
-  return 0 <= this.low_ ? this.low_ : goog.math.Long.TWO_PWR_32_DBL_ + this.low_;
-};
-goog.math.Long.prototype.getNumBitsAbs = function() {
-  if (this.isNegative()) {
-    return this.equals(goog.math.Long.MIN_VALUE) ? 64 : this.negate().getNumBitsAbs();
-  }
-  for (var a = 0 != this.high_ ? this.high_ : this.low_, b = 31;0 < b && 0 == (a & 1 << b);b--) {
-  }
-  return 0 != this.high_ ? b + 33 : b + 1;
-};
-goog.math.Long.prototype.isZero = function() {
-  return 0 == this.high_ && 0 == this.low_;
-};
-goog.math.Long.prototype.isNegative = function() {
-  return 0 > this.high_;
-};
-goog.math.Long.prototype.isOdd = function() {
-  return 1 == (this.low_ & 1);
-};
-goog.math.Long.prototype.equals = function(a) {
-  return this.high_ == a.high_ && this.low_ == a.low_;
-};
-goog.math.Long.prototype.notEquals = function(a) {
-  return this.high_ != a.high_ || this.low_ != a.low_;
-};
-goog.math.Long.prototype.lessThan = function(a) {
-  return 0 > this.compare(a);
-};
-goog.math.Long.prototype.lessThanOrEqual = function(a) {
-  return 0 >= this.compare(a);
-};
-goog.math.Long.prototype.greaterThan = function(a) {
-  return 0 < this.compare(a);
-};
-goog.math.Long.prototype.greaterThanOrEqual = function(a) {
-  return 0 <= this.compare(a);
-};
-goog.math.Long.prototype.compare = function(a) {
-  if (this.equals(a)) {
-    return 0;
-  }
-  var b = this.isNegative(), c = a.isNegative();
-  return b && !c ? -1 : !b && c ? 1 : this.subtract(a).isNegative() ? -1 : 1;
-};
-goog.math.Long.prototype.negate = function() {
-  return this.equals(goog.math.Long.MIN_VALUE) ? goog.math.Long.MIN_VALUE : this.not().add(goog.math.Long.ONE);
-};
-goog.math.Long.prototype.add = function(a) {
-  var b = this.high_ >>> 16, c = this.high_ & 65535, d = this.low_ >>> 16, e = a.high_ >>> 16, f = a.high_ & 65535, g = a.low_ >>> 16, h;
-  h = 0 + ((this.low_ & 65535) + (a.low_ & 65535));
-  a = 0 + (h >>> 16);
-  a += d + g;
-  d = 0 + (a >>> 16);
-  d += c + f;
-  c = 0 + (d >>> 16);
-  c = c + (b + e) & 65535;
-  return goog.math.Long.fromBits((a & 65535) << 16 | h & 65535, c << 16 | d & 65535);
-};
-goog.math.Long.prototype.subtract = function(a) {
-  return this.add(a.negate());
-};
-goog.math.Long.prototype.multiply = function(a) {
-  if (this.isZero() || a.isZero()) {
-    return goog.math.Long.ZERO;
-  }
-  if (this.equals(goog.math.Long.MIN_VALUE)) {
-    return a.isOdd() ? goog.math.Long.MIN_VALUE : goog.math.Long.ZERO;
-  }
-  if (a.equals(goog.math.Long.MIN_VALUE)) {
-    return this.isOdd() ? goog.math.Long.MIN_VALUE : goog.math.Long.ZERO;
-  }
-  if (this.isNegative()) {
-    return a.isNegative() ? this.negate().multiply(a.negate()) : this.negate().multiply(a).negate();
-  }
-  if (a.isNegative()) {
-    return this.multiply(a.negate()).negate();
-  }
-  if (this.lessThan(goog.math.Long.TWO_PWR_24_) && a.lessThan(goog.math.Long.TWO_PWR_24_)) {
-    return goog.math.Long.fromNumber(this.toNumber() * a.toNumber());
-  }
-  var b = this.high_ >>> 16, c = this.high_ & 65535, d = this.low_ >>> 16, e = this.low_ & 65535, f = a.high_ >>> 16, g = a.high_ & 65535, h = a.low_ >>> 16;
-  a = a.low_ & 65535;
-  var l, k, m, n;
-  n = 0 + e * a;
-  m = 0 + (n >>> 16);
-  m += d * a;
-  k = 0 + (m >>> 16);
-  m = (m & 65535) + e * h;
-  k += m >>> 16;
-  m &= 65535;
-  k += c * a;
-  l = 0 + (k >>> 16);
-  k = (k & 65535) + d * h;
-  l += k >>> 16;
-  k &= 65535;
-  k += e * g;
-  l += k >>> 16;
-  k &= 65535;
-  l = l + (b * a + c * h + d * g + e * f) & 65535;
-  return goog.math.Long.fromBits(m << 16 | n & 65535, l << 16 | k);
-};
-goog.math.Long.prototype.div = function(a) {
-  if (a.isZero()) {
-    throw Error("division by zero");
-  }
-  if (this.isZero()) {
-    return goog.math.Long.ZERO;
-  }
-  if (this.equals(goog.math.Long.MIN_VALUE)) {
-    if (a.equals(goog.math.Long.ONE) || a.equals(goog.math.Long.NEG_ONE)) {
-      return goog.math.Long.MIN_VALUE;
-    }
-    if (a.equals(goog.math.Long.MIN_VALUE)) {
-      return goog.math.Long.ONE;
-    }
-    var b = this.shiftRight(1).div(a).shiftLeft(1);
-    if (b.equals(goog.math.Long.ZERO)) {
-      return a.isNegative() ? goog.math.Long.ONE : goog.math.Long.NEG_ONE;
-    }
-    var c = this.subtract(a.multiply(b));
-    return b.add(c.div(a));
-  }
-  if (a.equals(goog.math.Long.MIN_VALUE)) {
-    return goog.math.Long.ZERO;
-  }
-  if (this.isNegative()) {
-    return a.isNegative() ? this.negate().div(a.negate()) : this.negate().div(a).negate();
-  }
-  if (a.isNegative()) {
-    return this.div(a.negate()).negate();
-  }
-  for (var d = goog.math.Long.ZERO, c = this;c.greaterThanOrEqual(a);) {
-    for (var b = Math.max(1, Math.floor(c.toNumber() / a.toNumber())), e = Math.ceil(Math.log(b) / Math.LN2), e = 48 >= e ? 1 : Math.pow(2, e - 48), f = goog.math.Long.fromNumber(b), g = f.multiply(a);g.isNegative() || g.greaterThan(c);) {
-      b -= e, f = goog.math.Long.fromNumber(b), g = f.multiply(a);
-    }
-    f.isZero() && (f = goog.math.Long.ONE);
-    d = d.add(f);
-    c = c.subtract(g);
-  }
-  return d;
-};
-goog.math.Long.prototype.modulo = function(a) {
-  return this.subtract(this.div(a).multiply(a));
-};
-goog.math.Long.prototype.not = function() {
-  return goog.math.Long.fromBits(~this.low_, ~this.high_);
-};
-goog.math.Long.prototype.and = function(a) {
-  return goog.math.Long.fromBits(this.low_ & a.low_, this.high_ & a.high_);
-};
-goog.math.Long.prototype.or = function(a) {
-  return goog.math.Long.fromBits(this.low_ | a.low_, this.high_ | a.high_);
-};
-goog.math.Long.prototype.xor = function(a) {
-  return goog.math.Long.fromBits(this.low_ ^ a.low_, this.high_ ^ a.high_);
-};
-goog.math.Long.prototype.shiftLeft = function(a) {
-  a &= 63;
-  if (0 == a) {
-    return this;
-  }
-  var b = this.low_;
-  return 32 > a ? goog.math.Long.fromBits(b << a, this.high_ << a | b >>> 32 - a) : goog.math.Long.fromBits(0, b << a - 32);
-};
-goog.math.Long.prototype.shiftRight = function(a) {
-  a &= 63;
-  if (0 == a) {
-    return this;
-  }
-  var b = this.high_;
-  return 32 > a ? goog.math.Long.fromBits(this.low_ >>> a | b << 32 - a, b >> a) : goog.math.Long.fromBits(b >> a - 32, 0 <= b ? 0 : -1);
-};
-goog.math.Long.prototype.shiftRightUnsigned = function(a) {
-  a &= 63;
-  if (0 == a) {
-    return this;
-  }
-  var b = this.high_;
-  return 32 > a ? goog.math.Long.fromBits(this.low_ >>> a | b << 32 - a, b >>> a) : 32 == a ? goog.math.Long.fromBits(b, 0) : goog.math.Long.fromBits(b >>> a - 32, 0);
-};
 var com = {cognitect:{}};
 com.cognitect.transit = {};
+com.cognitect.transit.delimiters = {};
+com.cognitect.transit.delimiters.ESC = "~";
+com.cognitect.transit.delimiters.TAG = "#";
+com.cognitect.transit.delimiters.SUB = "^";
+com.cognitect.transit.delimiters.RES = "`";
+com.cognitect.transit.delimiters.ESC_TAG = "~#";
+com.cognitect.transit.caching = {};
+com.cognitect.transit.caching.MIN_SIZE_CACHEABLE = 3;
+com.cognitect.transit.caching.BASE_CHAR_IDX = 48;
+com.cognitect.transit.caching.CACHE_CODE_DIGITS = 44;
+com.cognitect.transit.caching.MAX_CACHE_ENTRIES = com.cognitect.transit.caching.CACHE_CODE_DIGITS * com.cognitect.transit.caching.CACHE_CODE_DIGITS;
+com.cognitect.transit.caching.MAX_CACHE_SIZE = 4096;
+com.cognitect.transit.caching.isCacheable = function(a, b) {
+  if (a.length > com.cognitect.transit.caching.MIN_SIZE_CACHEABLE) {
+    if (b) {
+      return!0;
+    }
+    var c = a.charAt(0), d = a.charAt(1);
+    return c === com.cognitect.transit.delimiters.ESC ? ":" === d || "$" === d || "#" === d : !1;
+  }
+  return!1;
+};
+com.cognitect.transit.caching.idxToCode = function(a) {
+  var b = Math.floor(a / com.cognitect.transit.caching.CACHE_CODE_DIGITS);
+  a = String.fromCharCode(a % com.cognitect.transit.caching.CACHE_CODE_DIGITS + com.cognitect.transit.caching.BASE_CHAR_IDX);
+  return 0 === b ? com.cognitect.transit.delimiters.SUB + a : com.cognitect.transit.delimiters.SUB + String.fromCharCode(b + com.cognitect.transit.caching.BASE_CHAR_IDX) + a;
+};
+com.cognitect.transit.caching.WriteCache = function() {
+  this.cacheSize = this.gen = this.idx = 0;
+  this.cache = {};
+};
+com.cognitect.transit.caching.WriteCache.prototype.write = function(a, b) {
+  if (com.cognitect.transit.caching.isCacheable(a, b)) {
+    this.cacheSize === com.cognitect.transit.caching.MAX_CACHE_SIZE ? (this.clear(), this.gen = 0, this.cache = {}) : this.idx === com.cognitect.transit.caching.MAX_CACHE_ENTRIES && this.clear();
+    var c = this.cache[a];
+    return null == c ? (this.cache[a] = [com.cognitect.transit.caching.idxToCode(this.idx), this.gen], this.idx++, a) : c[1] != this.gen ? (c[1] = this.gen, c[0] = com.cognitect.transit.caching.idxToCode(this.idx), this.idx++, a) : c[0];
+  }
+  return a;
+};
+com.cognitect.transit.caching.WriteCache.prototype.clear = function() {
+  this.idx = 0;
+  this.gen++;
+};
+com.cognitect.transit.caching.writeCache = function() {
+  return new com.cognitect.transit.caching.WriteCache;
+};
+com.cognitect.transit.caching.isCacheCode = function(a) {
+  return a.charAt(0) === com.cognitect.transit.delimiters.SUB && " " !== a.charAt(1);
+};
+com.cognitect.transit.caching.codeToIdx = function(a) {
+  if (2 === a.length) {
+    return a.charCodeAt(1) - com.cognitect.transit.caching.BASE_CHAR_IDX;
+  }
+  var b = (a.charCodeAt(1) - com.cognitect.transit.caching.BASE_CHAR_IDX) * com.cognitect.transit.caching.CACHE_CODE_DIGITS;
+  a = a.charCodeAt(2) - com.cognitect.transit.caching.BASE_CHAR_IDX;
+  return b + a;
+};
+com.cognitect.transit.caching.ReadCache = function() {
+  this.idx = 0;
+  this.cache = [];
+};
+com.cognitect.transit.caching.ReadCache.prototype.write = function(a, b) {
+  this.idx == com.cognitect.transit.caching.MAX_CACHE_ENTRIES && (this.idx = 0);
+  this.cache[this.idx] = a;
+  this.idx++;
+  return a;
+};
+com.cognitect.transit.caching.ReadCache.prototype.read = function(a, b) {
+  return this.cache[com.cognitect.transit.caching.codeToIdx(a)];
+};
+com.cognitect.transit.caching.ReadCache.prototype.clear = function() {
+  this.idx = 0;
+};
+com.cognitect.transit.caching.readCache = function() {
+  return new com.cognitect.transit.caching.ReadCache;
+};
 com.cognitect.transit.util = {};
 com.cognitect.transit.util.objectKeys = "undefined" != typeof Object.keys ? function(a) {
   return Object.keys(a);
@@ -2088,12 +1255,6 @@ com.cognitect.transit.util.Base64ToUint8 = function(a) {
   }
   return c;
 };
-com.cognitect.transit.delimiters = {};
-com.cognitect.transit.delimiters.ESC = "~";
-com.cognitect.transit.delimiters.TAG = "#";
-com.cognitect.transit.delimiters.SUB = "^";
-com.cognitect.transit.delimiters.RES = "`";
-com.cognitect.transit.delimiters.ESC_TAG = "~#";
 com.cognitect.transit.eq = {};
 com.cognitect.transit.eq.hashCodeProperty = "transit$hashCode$";
 com.cognitect.transit.eq.hashCodeCounter = 1;
@@ -2597,6 +1758,14 @@ com.cognitect.transit.types.TransitArrayMap.prototype["delete"] = function(a) {
     }
   }
 };
+com.cognitect.transit.types.TransitArrayMap.prototype.clone = function() {
+  var a = com.cognitect.transit.types.map();
+  this.forEach(function(b, c) {
+    a.set(c, b);
+  });
+  return a;
+};
+com.cognitect.transit.types.TransitArrayMap.prototype.clone = com.cognitect.transit.types.TransitArrayMap.prototype.clone;
 com.cognitect.transit.types.TransitArrayMap.prototype.com$cognitect$transit$hashCode = function() {
   if (this.backingMap) {
     return this.backingMap.com$cognitect$transit$hashCode();
@@ -2709,6 +1878,14 @@ com.cognitect.transit.types.TransitMap.prototype.values = function() {
   return new com.cognitect.transit.types.TransitMapIterator(this, com.cognitect.transit.types.VALUES);
 };
 com.cognitect.transit.types.TransitMap.prototype.values = com.cognitect.transit.types.TransitMap.prototype.values;
+com.cognitect.transit.types.TransitMap.prototype.clone = function() {
+  var a = com.cognitect.transit.types.map();
+  this.forEach(function(b, c) {
+    a.set(c, b);
+  });
+  return a;
+};
+com.cognitect.transit.types.TransitMap.prototype.clone = com.cognitect.transit.types.TransitMap.prototype.clone;
 com.cognitect.transit.types.TransitMap.prototype.com$cognitect$transit$hashCode = function() {
   -1 === this.hashCode && (this.hashCode = com.cognitect.transit.eq.hashMapLike(this));
   return this.hashCode;
@@ -2811,6 +1988,14 @@ com.cognitect.transit.types.TransitSet.prototype.values = function() {
   return this.map.values();
 };
 com.cognitect.transit.types.TransitSet.prototype.values = com.cognitect.transit.types.TransitSet.prototype.values;
+com.cognitect.transit.types.TransitSet.prototype.clone = function() {
+  var a = com.cognitect.transit.types.set();
+  this.forEach(function(b) {
+    a.add(b);
+  });
+  return a;
+};
+com.cognitect.transit.types.TransitSet.prototype.clone = com.cognitect.transit.types.TransitSet.prototype.clone;
 com.cognitect.transit.types.TransitSet.prototype.com$cognitect$transit$equals = function(a) {
   if (a instanceof com.cognitect.transit.types.TransitSet) {
     if (this.size === a.size) {
@@ -2874,303 +2059,6 @@ com.cognitect.transit.types.specialDouble = function(a) {
       throw Error("Invalid special double value " + a);;
   }
 };
-com.cognitect.transit.caching = {};
-com.cognitect.transit.caching.MIN_SIZE_CACHEABLE = 3;
-com.cognitect.transit.caching.BASE_CHAR_IDX = 48;
-com.cognitect.transit.caching.CACHE_CODE_DIGITS = 44;
-com.cognitect.transit.caching.MAX_CACHE_ENTRIES = com.cognitect.transit.caching.CACHE_CODE_DIGITS * com.cognitect.transit.caching.CACHE_CODE_DIGITS;
-com.cognitect.transit.caching.MAX_CACHE_SIZE = 4096;
-com.cognitect.transit.caching.isCacheable = function(a, b) {
-  if (a.length > com.cognitect.transit.caching.MIN_SIZE_CACHEABLE) {
-    if (b) {
-      return!0;
-    }
-    var c = a.charAt(0), d = a.charAt(1);
-    return c === com.cognitect.transit.delimiters.ESC ? ":" === d || "$" === d || "#" === d : !1;
-  }
-  return!1;
-};
-com.cognitect.transit.caching.idxToCode = function(a) {
-  var b = Math.floor(a / com.cognitect.transit.caching.CACHE_CODE_DIGITS);
-  a = String.fromCharCode(a % com.cognitect.transit.caching.CACHE_CODE_DIGITS + com.cognitect.transit.caching.BASE_CHAR_IDX);
-  return 0 === b ? com.cognitect.transit.delimiters.SUB + a : com.cognitect.transit.delimiters.SUB + String.fromCharCode(b + com.cognitect.transit.caching.BASE_CHAR_IDX) + a;
-};
-com.cognitect.transit.caching.WriteCache = function() {
-  this.cacheSize = this.gen = this.idx = 0;
-  this.cache = {};
-};
-com.cognitect.transit.caching.WriteCache.prototype.write = function(a, b) {
-  if (com.cognitect.transit.caching.isCacheable(a, b)) {
-    this.cacheSize === com.cognitect.transit.caching.MAX_CACHE_SIZE ? (this.clear(), this.gen = 0, this.cache = {}) : this.idx === com.cognitect.transit.caching.MAX_CACHE_ENTRIES && this.clear();
-    var c = this.cache[a];
-    return null == c ? (this.cache[a] = [com.cognitect.transit.caching.idxToCode(this.idx), this.gen], this.idx++, a) : c[1] != this.gen ? (c[1] = this.gen, c[0] = com.cognitect.transit.caching.idxToCode(this.idx), this.idx++, a) : c[0];
-  }
-  return a;
-};
-com.cognitect.transit.caching.WriteCache.prototype.clear = function() {
-  this.idx = 0;
-  this.gen++;
-};
-com.cognitect.transit.caching.writeCache = function() {
-  return new com.cognitect.transit.caching.WriteCache;
-};
-com.cognitect.transit.caching.isCacheCode = function(a) {
-  return a.charAt(0) === com.cognitect.transit.delimiters.SUB && " " !== a.charAt(1);
-};
-com.cognitect.transit.caching.codeToIdx = function(a) {
-  if (2 === a.length) {
-    return a.charCodeAt(1) - com.cognitect.transit.caching.BASE_CHAR_IDX;
-  }
-  var b = (a.charCodeAt(1) - com.cognitect.transit.caching.BASE_CHAR_IDX) * com.cognitect.transit.caching.CACHE_CODE_DIGITS;
-  a = a.charCodeAt(2) - com.cognitect.transit.caching.BASE_CHAR_IDX;
-  return b + a;
-};
-com.cognitect.transit.caching.ReadCache = function() {
-  this.idx = 0;
-  this.cache = [];
-};
-com.cognitect.transit.caching.ReadCache.prototype.write = function(a, b) {
-  this.idx == com.cognitect.transit.caching.MAX_CACHE_ENTRIES && (this.idx = 0);
-  this.cache[this.idx] = a;
-  this.idx++;
-  return a;
-};
-com.cognitect.transit.caching.ReadCache.prototype.read = function(a, b) {
-  return this.cache[com.cognitect.transit.caching.codeToIdx(a)];
-};
-com.cognitect.transit.caching.ReadCache.prototype.clear = function() {
-  this.idx = 0;
-};
-com.cognitect.transit.caching.readCache = function() {
-  return new com.cognitect.transit.caching.ReadCache;
-};
-com.cognitect.transit.impl = {};
-com.cognitect.transit.impl.decoder = {};
-com.cognitect.transit.impl.decoder.Tag = function(a) {
-  this.str = a;
-};
-com.cognitect.transit.impl.decoder.tag = function(a) {
-  return new com.cognitect.transit.impl.decoder.Tag(a);
-};
-com.cognitect.transit.impl.decoder.isTag = function(a) {
-  return a && a instanceof com.cognitect.transit.impl.decoder.Tag;
-};
-com.cognitect.transit.impl.decoder.isGroundHandler = function(a) {
-  switch(a) {
-    case "_":
-    ;
-    case "s":
-    ;
-    case "?":
-    ;
-    case "i":
-    ;
-    case "d":
-    ;
-    case "b":
-    ;
-    case "'":
-    ;
-    case "array":
-    ;
-    case "map":
-      return!0;
-  }
-  return!1;
-};
-com.cognitect.transit.impl.decoder.Decoder = function(a) {
-  this.options = a || {};
-  this.handlers = {};
-  for (var b in this.defaults.handlers) {
-    this.handlers[b] = this.defaults.handlers[b];
-  }
-  for (b in this.options.handlers) {
-    if (com.cognitect.transit.impl.decoder.isGroundHandler(b)) {
-      throw Error('Cannot override handler for ground type "' + b + '"');
-    }
-    this.handlers[b] = this.options.handlers[b];
-  }
-  this.preferStrings = null != this.options.preferStrings ? this.options.preferStrings : this.defaults.preferStrings;
-  this.preferBuffers = null != this.options.preferBuffers ? this.options.preferBuffers : this.defaults.preferBuffers;
-  this.defaultHandler = this.options.defaultHandler || this.defaults.defaultHandler;
-  this.mapBuilder = this.options.mapBuilder;
-  this.arrayBuilder = this.options.arrayBuilder;
-};
-com.cognitect.transit.impl.decoder.Decoder.prototype.defaults = {handlers:{_:function(a, b) {
-  return com.cognitect.transit.types.nullValue();
-}, "?":function(a, b) {
-  return com.cognitect.transit.types.boolValue(a);
-}, b:function(a, b) {
-  return com.cognitect.transit.types.binary(a, b);
-}, i:function(a, b) {
-  return com.cognitect.transit.types.intValue(a);
-}, n:function(a, b) {
-  return com.cognitect.transit.types.bigInteger(a);
-}, d:function(a, b) {
-  return com.cognitect.transit.types.floatValue(a);
-}, f:function(a, b) {
-  return com.cognitect.transit.types.bigDecimalValue(a);
-}, c:function(a, b) {
-  return com.cognitect.transit.types.charValue(a);
-}, ":":function(a, b) {
-  return com.cognitect.transit.types.keyword(a);
-}, $:function(a, b) {
-  return com.cognitect.transit.types.symbol(a);
-}, r:function(a, b) {
-  return com.cognitect.transit.types.uri(a);
-}, z:function(a, b) {
-  return com.cognitect.transit.types.specialDouble(a);
-}, "'":function(a, b) {
-  return a;
-}, m:function(a, b) {
-  return com.cognitect.transit.types.date(a);
-}, t:function(a, b) {
-  return com.cognitect.transit.types.verboseDate(a);
-}, u:function(a, b) {
-  return com.cognitect.transit.types.uuid(a);
-}, set:function(a, b) {
-  return com.cognitect.transit.types.set(a);
-}, list:function(a, b) {
-  return com.cognitect.transit.types.list(a);
-}, link:function(a, b) {
-  return com.cognitect.transit.types.link(a);
-}, cmap:function(a, b) {
-  return com.cognitect.transit.types.map(a, !1);
-}}, defaultHandler:function(a, b) {
-  return com.cognitect.transit.types.taggedValue(a, b);
-}, preferStrings:!0, preferBuffers:!0};
-com.cognitect.transit.impl.decoder.Decoder.prototype.decode = function(a, b, c, d) {
-  if (null == a) {
-    return null;
-  }
-  switch(typeof a) {
-    case "string":
-      return this.decodeString(a, b, c, d);
-    case "object":
-      return com.cognitect.transit.util.isArray(a) ? "^ " === a[0] ? this.decodeArrayHash(a, b, c, d) : this.decodeArray(a, b, c, d) : this.decodeHash(a, b, c, d);
-  }
-  return a;
-};
-com.cognitect.transit.impl.decoder.Decoder.prototype.decode = com.cognitect.transit.impl.decoder.Decoder.prototype.decode;
-com.cognitect.transit.impl.decoder.Decoder.prototype.decodeString = function(a, b, c, d) {
-  return com.cognitect.transit.caching.isCacheable(a, c) ? (a = this.parseString(a, b, !1), b && b.write(a, c), a) : com.cognitect.transit.caching.isCacheCode(a) ? b.read(a, c) : this.parseString(a, b, c);
-};
-com.cognitect.transit.impl.decoder.Decoder.prototype.decodeHash = function(a, b, c, d) {
-  c = com.cognitect.transit.util.objectKeys(a);
-  var e = c[0];
-  d = 1 == c.length ? this.decode(e, b, !1, !1) : null;
-  if (com.cognitect.transit.impl.decoder.isTag(d)) {
-    return a = a[e], c = this.handlers[d.str], null != c ? c(this.decode(a, b, !1, !0), this) : com.cognitect.transit.types.taggedValue(d.str, this.decode(a, b, !1, !1));
-  }
-  if (this.mapBuilder) {
-    if (c.length < 2 * com.cognitect.transit.types.SMALL_ARRAY_MAP_THRESHOLD && this.mapBuilder.fromArray) {
-      var f = [];
-      for (d = 0;d < c.length;d++) {
-        e = c[d], f.push(this.decode(e, b, !0, !1)), f.push(this.decode(a[e], b, !1, !1));
-      }
-      return this.mapBuilder.fromArray(f, a);
-    }
-    f = this.mapBuilder.init(a);
-    for (d = 0;d < c.length;d++) {
-      e = c[d], f = this.mapBuilder.add(f, this.decode(e, b, !0, !1), this.decode(a[e], b, !1, !1), a);
-    }
-    return this.mapBuilder.finalize(f, a);
-  }
-  f = [];
-  for (d = 0;d < c.length;d++) {
-    e = c[d], f.push(this.decode(e, b, !0, !1)), f.push(this.decode(a[e], b, !1, !1));
-  }
-  return com.cognitect.transit.types.map(f, !1);
-};
-com.cognitect.transit.impl.decoder.Decoder.prototype.decodeArrayHash = function(a, b, c, d) {
-  if (this.mapBuilder) {
-    if (a.length < 2 * com.cognitect.transit.types.SMALL_ARRAY_MAP_THRESHOLD + 1 && this.mapBuilder.fromArray) {
-      d = [];
-      for (c = 1;c < a.length;c += 2) {
-        d.push(this.decode(a[c], b, !0, !1)), d.push(this.decode(a[c + 1], b, !1, !1));
-      }
-      return this.mapBuilder.fromArray(d, a);
-    }
-    d = this.mapBuilder.init(a);
-    for (c = 1;c < a.length;c += 2) {
-      d = this.mapBuilder.add(d, this.decode(a[c], b, !0, !1), this.decode(a[c + 1], b, !1, !1), a);
-    }
-    return this.mapBuilder.finalize(d, a);
-  }
-  d = [];
-  for (c = 1;c < a.length;c += 2) {
-    d.push(this.decode(a[c], b, !0, !1)), d.push(this.decode(a[c + 1], b, !1, !1));
-  }
-  return com.cognitect.transit.types.map(d, !1);
-};
-com.cognitect.transit.impl.decoder.Decoder.prototype.decodeArray = function(a, b, c, d) {
-  if (d) {
-    var e = [];
-    for (d = 0;d < a.length;d++) {
-      e.push(this.decode(a[d], b, c, !1));
-    }
-    return e;
-  }
-  e = b && b.idx;
-  if (2 === a.length && "string" === typeof a[0] && (d = this.decode(a[0], b, !1, !1), com.cognitect.transit.impl.decoder.isTag(d))) {
-    return a = a[1], e = this.handlers[d.str], null != e ? e = e(this.decode(a, b, c, !0), this) : com.cognitect.transit.types.taggedValue(d.str, this.decode(a, b, c, !1));
-  }
-  b && e != b.idx && (b.idx = e);
-  if (this.arrayBuilder) {
-    if (32 >= a.length && this.arrayBuilder.fromArray) {
-      e = [];
-      for (d = 0;d < a.length;d++) {
-        e.push(this.decode(a[d], b, c, !1));
-      }
-      return this.arrayBuilder.fromArray(e, a);
-    }
-    e = this.arrayBuilder.init();
-    for (d = 0;d < a.length;d++) {
-      e = this.arrayBuilder.add(e, this.decode(a[d], b, c, !1), a);
-    }
-    return this.arrayBuilder.finalize(e, a);
-  }
-  e = [];
-  for (d = 0;d < a.length;d++) {
-    e.push(this.decode(a[d], b, c, !1));
-  }
-  return e;
-};
-com.cognitect.transit.impl.decoder.Decoder.prototype.parseString = function(a, b, c) {
-  if (a.charAt(0) === com.cognitect.transit.delimiters.ESC) {
-    b = a.charAt(1);
-    if (b === com.cognitect.transit.delimiters.ESC || b === com.cognitect.transit.delimiters.SUB || b === com.cognitect.transit.delimiters.RES) {
-      return a.substring(1);
-    }
-    if (b === com.cognitect.transit.delimiters.TAG) {
-      return com.cognitect.transit.impl.decoder.tag(a.substring(2));
-    }
-    c = this.handlers[b];
-    return null == c ? this.defaultHandler(b, a.substring(2)) : c(a.substring(2), this);
-  }
-  return a;
-};
-com.cognitect.transit.impl.decoder.decoder = function(a) {
-  return new com.cognitect.transit.impl.decoder.Decoder(a);
-};
-com.cognitect.transit.impl.reader = {};
-com.cognitect.transit.impl.reader.JSONUnmarshaller = function(a) {
-  this.decoder = new com.cognitect.transit.impl.decoder.Decoder(a);
-};
-com.cognitect.transit.impl.reader.JSONUnmarshaller.prototype.unmarshal = function(a, b) {
-  return this.decoder.decode(JSON.parse(a), b);
-};
-com.cognitect.transit.impl.reader.Reader = function(a, b) {
-  this.unmarshaller = a;
-  this.options = b || {};
-  this.cache = this.options.cache ? this.options.cache : new com.cognitect.transit.caching.ReadCache;
-};
-com.cognitect.transit.impl.reader.Reader.prototype.read = function(a) {
-  a = this.unmarshaller.unmarshal(a, this.cache);
-  this.cache.clear();
-  return a;
-};
-com.cognitect.transit.impl.reader.Reader.prototype.read = com.cognitect.transit.impl.reader.Reader.prototype.read;
 com.cognitect.transit.handlers = {};
 com.cognitect.transit.handlers.ctorGuid = 0;
 com.cognitect.transit.handlers.ctorGuidProperty = "transit$guid$" + com.cognitect.transit.util.randomUUID();
@@ -3466,6 +2354,233 @@ com.cognitect.transit.handlers.validTag = function(a) {
 com.cognitect.transit.handlers.Handlers.prototype.set = function(a, b) {
   "string" === typeof a && com.cognitect.transit.handlers.validTag(a) ? this.handlers[a] = b : this.handlers[com.cognitect.transit.handlers.typeTag(a)] = b;
 };
+com.cognitect.transit.impl = {};
+com.cognitect.transit.impl.decoder = {};
+com.cognitect.transit.impl.decoder.Tag = function(a) {
+  this.str = a;
+};
+com.cognitect.transit.impl.decoder.tag = function(a) {
+  return new com.cognitect.transit.impl.decoder.Tag(a);
+};
+com.cognitect.transit.impl.decoder.isTag = function(a) {
+  return a && a instanceof com.cognitect.transit.impl.decoder.Tag;
+};
+com.cognitect.transit.impl.decoder.isGroundHandler = function(a) {
+  switch(a) {
+    case "_":
+    ;
+    case "s":
+    ;
+    case "?":
+    ;
+    case "i":
+    ;
+    case "d":
+    ;
+    case "b":
+    ;
+    case "'":
+    ;
+    case "array":
+    ;
+    case "map":
+      return!0;
+  }
+  return!1;
+};
+com.cognitect.transit.impl.decoder.Decoder = function(a) {
+  this.options = a || {};
+  this.handlers = {};
+  for (var b in this.defaults.handlers) {
+    this.handlers[b] = this.defaults.handlers[b];
+  }
+  for (b in this.options.handlers) {
+    if (com.cognitect.transit.impl.decoder.isGroundHandler(b)) {
+      throw Error('Cannot override handler for ground type "' + b + '"');
+    }
+    this.handlers[b] = this.options.handlers[b];
+  }
+  this.preferStrings = null != this.options.preferStrings ? this.options.preferStrings : this.defaults.preferStrings;
+  this.preferBuffers = null != this.options.preferBuffers ? this.options.preferBuffers : this.defaults.preferBuffers;
+  this.defaultHandler = this.options.defaultHandler || this.defaults.defaultHandler;
+  this.mapBuilder = this.options.mapBuilder;
+  this.arrayBuilder = this.options.arrayBuilder;
+};
+com.cognitect.transit.impl.decoder.Decoder.prototype.defaults = {handlers:{_:function(a, b) {
+  return com.cognitect.transit.types.nullValue();
+}, "?":function(a, b) {
+  return com.cognitect.transit.types.boolValue(a);
+}, b:function(a, b) {
+  return com.cognitect.transit.types.binary(a, b);
+}, i:function(a, b) {
+  return com.cognitect.transit.types.intValue(a);
+}, n:function(a, b) {
+  return com.cognitect.transit.types.bigInteger(a);
+}, d:function(a, b) {
+  return com.cognitect.transit.types.floatValue(a);
+}, f:function(a, b) {
+  return com.cognitect.transit.types.bigDecimalValue(a);
+}, c:function(a, b) {
+  return com.cognitect.transit.types.charValue(a);
+}, ":":function(a, b) {
+  return com.cognitect.transit.types.keyword(a);
+}, $:function(a, b) {
+  return com.cognitect.transit.types.symbol(a);
+}, r:function(a, b) {
+  return com.cognitect.transit.types.uri(a);
+}, z:function(a, b) {
+  return com.cognitect.transit.types.specialDouble(a);
+}, "'":function(a, b) {
+  return a;
+}, m:function(a, b) {
+  return com.cognitect.transit.types.date(a);
+}, t:function(a, b) {
+  return com.cognitect.transit.types.verboseDate(a);
+}, u:function(a, b) {
+  return com.cognitect.transit.types.uuid(a);
+}, set:function(a, b) {
+  return com.cognitect.transit.types.set(a);
+}, list:function(a, b) {
+  return com.cognitect.transit.types.list(a);
+}, link:function(a, b) {
+  return com.cognitect.transit.types.link(a);
+}, cmap:function(a, b) {
+  return com.cognitect.transit.types.map(a, !1);
+}}, defaultHandler:function(a, b) {
+  return com.cognitect.transit.types.taggedValue(a, b);
+}, preferStrings:!0, preferBuffers:!0};
+com.cognitect.transit.impl.decoder.Decoder.prototype.decode = function(a, b, c, d) {
+  if (null == a) {
+    return null;
+  }
+  switch(typeof a) {
+    case "string":
+      return this.decodeString(a, b, c, d);
+    case "object":
+      return com.cognitect.transit.util.isArray(a) ? "^ " === a[0] ? this.decodeArrayHash(a, b, c, d) : this.decodeArray(a, b, c, d) : this.decodeHash(a, b, c, d);
+  }
+  return a;
+};
+com.cognitect.transit.impl.decoder.Decoder.prototype.decode = com.cognitect.transit.impl.decoder.Decoder.prototype.decode;
+com.cognitect.transit.impl.decoder.Decoder.prototype.decodeString = function(a, b, c, d) {
+  return com.cognitect.transit.caching.isCacheable(a, c) ? (a = this.parseString(a, b, !1), b && b.write(a, c), a) : com.cognitect.transit.caching.isCacheCode(a) ? b.read(a, c) : this.parseString(a, b, c);
+};
+com.cognitect.transit.impl.decoder.Decoder.prototype.decodeHash = function(a, b, c, d) {
+  c = com.cognitect.transit.util.objectKeys(a);
+  var e = c[0];
+  d = 1 == c.length ? this.decode(e, b, !1, !1) : null;
+  if (com.cognitect.transit.impl.decoder.isTag(d)) {
+    return a = a[e], c = this.handlers[d.str], null != c ? c(this.decode(a, b, !1, !0), this) : com.cognitect.transit.types.taggedValue(d.str, this.decode(a, b, !1, !1));
+  }
+  if (this.mapBuilder) {
+    if (c.length < 2 * com.cognitect.transit.types.SMALL_ARRAY_MAP_THRESHOLD && this.mapBuilder.fromArray) {
+      var f = [];
+      for (d = 0;d < c.length;d++) {
+        e = c[d], f.push(this.decode(e, b, !0, !1)), f.push(this.decode(a[e], b, !1, !1));
+      }
+      return this.mapBuilder.fromArray(f, a);
+    }
+    f = this.mapBuilder.init(a);
+    for (d = 0;d < c.length;d++) {
+      e = c[d], f = this.mapBuilder.add(f, this.decode(e, b, !0, !1), this.decode(a[e], b, !1, !1), a);
+    }
+    return this.mapBuilder.finalize(f, a);
+  }
+  f = [];
+  for (d = 0;d < c.length;d++) {
+    e = c[d], f.push(this.decode(e, b, !0, !1)), f.push(this.decode(a[e], b, !1, !1));
+  }
+  return com.cognitect.transit.types.map(f, !1);
+};
+com.cognitect.transit.impl.decoder.Decoder.prototype.decodeArrayHash = function(a, b, c, d) {
+  if (this.mapBuilder) {
+    if (a.length < 2 * com.cognitect.transit.types.SMALL_ARRAY_MAP_THRESHOLD + 1 && this.mapBuilder.fromArray) {
+      d = [];
+      for (c = 1;c < a.length;c += 2) {
+        d.push(this.decode(a[c], b, !0, !1)), d.push(this.decode(a[c + 1], b, !1, !1));
+      }
+      return this.mapBuilder.fromArray(d, a);
+    }
+    d = this.mapBuilder.init(a);
+    for (c = 1;c < a.length;c += 2) {
+      d = this.mapBuilder.add(d, this.decode(a[c], b, !0, !1), this.decode(a[c + 1], b, !1, !1), a);
+    }
+    return this.mapBuilder.finalize(d, a);
+  }
+  d = [];
+  for (c = 1;c < a.length;c += 2) {
+    d.push(this.decode(a[c], b, !0, !1)), d.push(this.decode(a[c + 1], b, !1, !1));
+  }
+  return com.cognitect.transit.types.map(d, !1);
+};
+com.cognitect.transit.impl.decoder.Decoder.prototype.decodeArray = function(a, b, c, d) {
+  if (d) {
+    var e = [];
+    for (d = 0;d < a.length;d++) {
+      e.push(this.decode(a[d], b, c, !1));
+    }
+    return e;
+  }
+  e = b && b.idx;
+  if (2 === a.length && "string" === typeof a[0] && (d = this.decode(a[0], b, !1, !1), com.cognitect.transit.impl.decoder.isTag(d))) {
+    return a = a[1], e = this.handlers[d.str], null != e ? e = e(this.decode(a, b, c, !0), this) : com.cognitect.transit.types.taggedValue(d.str, this.decode(a, b, c, !1));
+  }
+  b && e != b.idx && (b.idx = e);
+  if (this.arrayBuilder) {
+    if (32 >= a.length && this.arrayBuilder.fromArray) {
+      e = [];
+      for (d = 0;d < a.length;d++) {
+        e.push(this.decode(a[d], b, c, !1));
+      }
+      return this.arrayBuilder.fromArray(e, a);
+    }
+    e = this.arrayBuilder.init();
+    for (d = 0;d < a.length;d++) {
+      e = this.arrayBuilder.add(e, this.decode(a[d], b, c, !1), a);
+    }
+    return this.arrayBuilder.finalize(e, a);
+  }
+  e = [];
+  for (d = 0;d < a.length;d++) {
+    e.push(this.decode(a[d], b, c, !1));
+  }
+  return e;
+};
+com.cognitect.transit.impl.decoder.Decoder.prototype.parseString = function(a, b, c) {
+  if (a.charAt(0) === com.cognitect.transit.delimiters.ESC) {
+    b = a.charAt(1);
+    if (b === com.cognitect.transit.delimiters.ESC || b === com.cognitect.transit.delimiters.SUB || b === com.cognitect.transit.delimiters.RES) {
+      return a.substring(1);
+    }
+    if (b === com.cognitect.transit.delimiters.TAG) {
+      return com.cognitect.transit.impl.decoder.tag(a.substring(2));
+    }
+    c = this.handlers[b];
+    return null == c ? this.defaultHandler(b, a.substring(2)) : c(a.substring(2), this);
+  }
+  return a;
+};
+com.cognitect.transit.impl.decoder.decoder = function(a) {
+  return new com.cognitect.transit.impl.decoder.Decoder(a);
+};
+com.cognitect.transit.impl.reader = {};
+com.cognitect.transit.impl.reader.JSONUnmarshaller = function(a) {
+  this.decoder = new com.cognitect.transit.impl.decoder.Decoder(a);
+};
+com.cognitect.transit.impl.reader.JSONUnmarshaller.prototype.unmarshal = function(a, b) {
+  return this.decoder.decode(JSON.parse(a), b);
+};
+com.cognitect.transit.impl.reader.Reader = function(a, b) {
+  this.unmarshaller = a;
+  this.options = b || {};
+  this.cache = this.options.cache ? this.options.cache : new com.cognitect.transit.caching.ReadCache;
+};
+com.cognitect.transit.impl.reader.Reader.prototype.read = function(a) {
+  a = this.unmarshaller.unmarshal(a, this.cache);
+  this.cache.clear();
+  return a;
+};
+com.cognitect.transit.impl.reader.Reader.prototype.read = com.cognitect.transit.impl.reader.Reader.prototype.read;
 com.cognitect.transit.impl.writer = {};
 com.cognitect.transit.impl.writer.escape = function(a) {
   if (0 < a.length) {
