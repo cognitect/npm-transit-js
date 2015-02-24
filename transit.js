@@ -1,4 +1,4 @@
-// transit-js 0.8.771
+// transit-js 0.8.774
 // http://transit-format.org
 // 
 // Copyright 2014 Cognitect. All Rights Reserved.
@@ -1762,14 +1762,11 @@ com.cognitect.transit.types.TransitArrayMap.prototype.set = com.cognitect.transi
 com.cognitect.transit.types.TransitArrayMap.prototype["delete"] = function(a) {
   this.hashCode = -1;
   if (this.backingMap) {
-    this.backingMap["delete"](a), this.size = this.backingMap.size;
-  } else {
-    for (var b = 0;b < this._entries.length;b += 2) {
-      if (com.cognitect.transit.eq.equals(this._entries[b], a)) {
-        this._entries.splice(b, 2);
-        this.size--;
-        break;
-      }
+    return a = this.backingMap["delete"](a), this.size = this.backingMap.size, a;
+  }
+  for (var b = 0;b < this._entries.length;b += 2) {
+    if (com.cognitect.transit.eq.equals(this._entries[b], a)) {
+      return a = this._entries[b + 1], this._entries.splice(b, 2), this.size--, a;
     }
   }
 };
@@ -1815,10 +1812,7 @@ com.cognitect.transit.types.TransitMap.prototype["delete"] = function(a) {
   this._keys = null;
   for (var b = com.cognitect.transit.eq.hashCode(a), c = this.map[b], d = 0;d < c.length;d += 2) {
     if (com.cognitect.transit.eq.equals(a, c[d])) {
-      c.splice(d, 2);
-      0 === c.length && delete this.map[b];
-      this.size--;
-      break;
+      return a = c[d + 1], c.splice(d, 2), 0 === c.length && delete this.map[b], this.size--, a;
     }
   }
 };
@@ -1973,8 +1967,9 @@ com.cognitect.transit.types.TransitSet.prototype.clear = function() {
 };
 com.cognitect.transit.types.TransitSet.prototype.clear = com.cognitect.transit.types.TransitSet.prototype.clear;
 com.cognitect.transit.types.TransitSet.prototype["delete"] = function(a) {
-  this.map["delete"](a);
+  a = this.map["delete"](a);
   this.size = this.map.size;
+  return a;
 };
 com.cognitect.transit.types.TransitSet.prototype.entries = function() {
   return this.map.entries();
