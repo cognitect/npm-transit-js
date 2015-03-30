@@ -1,4 +1,4 @@
-// transit-js 0.8.774
+// transit-js 0.8.779
 // http://transit-format.org
 // 
 // Copyright 2014 Cognitect. All Rights Reserved.
@@ -2544,7 +2544,7 @@ com.cognitect.transit.impl.decoder.Decoder.prototype.decodeArray = function(a, b
       }
       return this.arrayBuilder.fromArray(e, a);
     }
-    e = this.arrayBuilder.init();
+    e = this.arrayBuilder.init(a);
     for (d = 0;d < a.length;d++) {
       e = this.arrayBuilder.add(e, this.decode(a[d], b, c, !1), a);
     }
