@@ -1,4 +1,4 @@
-// transit-js 0.8.779
+// transit-js 0.8.781
 // http://transit-format.org
 // 
 // Copyright 2014 Cognitect. All Rights Reserved.
@@ -2049,7 +2049,7 @@ com.cognitect.transit.types.list = function(a) {
   return com.cognitect.transit.types.taggedValue("list", a);
 };
 com.cognitect.transit.types.isList = function(a) {
-  return a instanceof com.cognitect.transit.types.List && "list" === a.tag;
+  return a instanceof com.cognitect.transit.types.TaggedValue && "list" === a.tag;
 };
 com.cognitect.transit.types.link = function(a) {
   return com.cognitect.transit.types.taggedValue("link", a);
