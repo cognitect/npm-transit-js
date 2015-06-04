@@ -1,4 +1,4 @@
-// transit-js 0.8.796
+// transit-js 0.8.802
 // http://transit-format.org
 // 
 // Copyright 2014 Cognitect. All Rights Reserved.
@@ -37,6 +37,7 @@ goog.LOCALE = "en";
 goog.TRUSTED_SITE = !0;
 goog.STRICT_MODE_COMPATIBLE = !1;
 goog.DISALLOW_TEST_ONLY_CODE = COMPILED && !goog.DEBUG;
+goog.ENABLE_CHROME_APP_SAFE_SCRIPT_LOADING = !1;
 goog.provide = function(a) {
   if (!COMPILED && goog.isProvided_(a)) {
     throw Error('Namespace "' + a + '" already declared.');
@@ -160,9 +161,6 @@ goog.require = function(a) {
 goog.basePath = "";
 goog.nullFunction = function() {
 };
-goog.identityFunction = function(a, b) {
-  return a;
-};
 goog.abstractMethod = function() {
   throw Error("unimplemented abstract method");
 };
@@ -188,7 +186,7 @@ goog.DEPENDENCIES_ENABLED && (goog.included_ = {}, goog.dependencies_ = {pathIsM
     goog.basePath = goog.global.CLOSURE_BASE_PATH;
   } else {
     if (goog.inHtmlDocument_()) {
-      for (var a = goog.global.document.getElementsByTagName("script"), b = a.length - 1;0 <= b;--b) {
+      for (var a = goog.global.document.getElementsByTagName("SCRIPT"), b = a.length - 1;0 <= b;--b) {
         var c = a[b].src, d = c.lastIndexOf("?"), d = -1 == d ? c.length : d;
         if ("base.js" == c.substr(d - 7, 7)) {
           goog.basePath = c.substr(0, d - 7);
@@ -215,16 +213,16 @@ goog.DEPENDENCIES_ENABLED && (goog.included_ = {}, goog.dependencies_ = {pathIsM
 }, goog.maybeProcessDeferredDep_ = function(a) {
   goog.isDeferredModule_(a) && goog.allDepsAreAvailable_(a) && (a = goog.getPathFromDeps_(a), goog.maybeProcessDeferredPath_(goog.basePath + a));
 }, goog.isDeferredModule_ = function(a) {
-  return(a = goog.getPathFromDeps_(a)) && goog.dependencies_.pathIsModule[a] ? goog.basePath + a in goog.dependencies_.deferred : !1;
+  return (a = goog.getPathFromDeps_(a)) && goog.dependencies_.pathIsModule[a] ? goog.basePath + a in goog.dependencies_.deferred : !1;
 }, goog.allDepsAreAvailable_ = function(a) {
   if ((a = goog.getPathFromDeps_(a)) && a in goog.dependencies_.requires) {
     for (var b in goog.dependencies_.requires[a]) {
       if (!goog.isProvided_(b) && !goog.isDeferredModule_(b)) {
-        return!1;
+        return !1;
       }
     }
   }
-  return!0;
+  return !0;
 }, goog.maybeProcessDeferredPath_ = function(a) {
   if (a in goog.dependencies_.deferred) {
     var b = goog.dependencies_.deferred[a];
@@ -263,24 +261,33 @@ goog.DEPENDENCIES_ENABLED && (goog.included_ = {}, goog.dependencies_ = {pathIsM
   }
 }, goog.loadModuleFromSource_ = function(a) {
   eval(a);
-  return{};
+  return {};
+}, goog.writeScriptSrcNode_ = function(a) {
+  goog.global.document.write('<script type="text/javascript" src="' + a + '">\x3c/script>');
+}, goog.appendScriptSrcNode_ = function(a) {
+  var b = goog.global.document, c = b.createElement("script");
+  c.type = "text/javascript";
+  c.src = a;
+  c.defer = !1;
+  c.async = !1;
+  b.head.appendChild(c);
 }, goog.writeScriptTag_ = function(a, b) {
   if (goog.inHtmlDocument_()) {
     var c = goog.global.document;
-    if ("complete" == c.readyState) {
+    if (!goog.ENABLE_CHROME_APP_SAFE_SCRIPT_LOADING && "complete" == c.readyState) {
       if (/\bdeps.js$/.test(a)) {
-        return!1;
+        return !1;
       }
       throw Error('Cannot write "' + a + '" after document load');
     }
     var d = goog.IS_OLD_IE_;
-    void 0 === b ? d ? (d = " onreadystatechange='goog.onScriptLoad_(this, " + ++goog.lastNonModuleScriptIndex_ + ")' ", c.write('<script type="text/javascript" src="' + a + '"' + d + ">\x3c/script>")) : c.write('<script type="text/javascript" src="' + a + '">\x3c/script>') : c.write('<script type="text/javascript">' + b + "\x3c/script>");
-    return!0;
+    void 0 === b ? d ? (d = " onreadystatechange='goog.onScriptLoad_(this, " + ++goog.lastNonModuleScriptIndex_ + ")' ", c.write('<script type="text/javascript" src="' + a + '"' + d + ">\x3c/script>")) : goog.ENABLE_CHROME_APP_SAFE_SCRIPT_LOADING ? goog.appendScriptSrcNode_(a) : goog.writeScriptSrcNode_(a) : c.write('<script type="text/javascript">' + b + "\x3c/script>");
+    return !0;
   }
-  return!1;
+  return !1;
 }, goog.lastNonModuleScriptIndex_ = 0, goog.onScriptLoad_ = function(a, b) {
   "complete" == a.readyState && goog.lastNonModuleScriptIndex_ == b && goog.loadQueuedModules_();
-  return!0;
+  return !0;
 }, goog.writeScripts_ = function() {
   function a(e) {
     if (!(e in d.written)) {
@@ -325,19 +332,22 @@ goog.normalizePath_ = function(a) {
   }
   return a.join("/");
 };
+goog.loadFileSync_ = function(a) {
+  if (goog.global.CLOSURE_LOAD_FILE_SYNC) {
+    return goog.global.CLOSURE_LOAD_FILE_SYNC(a);
+  }
+  var b = new goog.global.XMLHttpRequest;
+  b.open("get", a, !1);
+  b.send();
+  return b.responseText;
+};
 goog.retrieveAndExecModule_ = function(a) {
   if (!COMPILED) {
     var b = a;
     a = goog.normalizePath_(a);
-    var c = goog.global.CLOSURE_IMPORT_SCRIPT || goog.writeScriptTag_, d = null, e = new goog.global.XMLHttpRequest;
-    e.onload = function() {
-      d = this.responseText;
-    };
-    e.open("get", a, !1);
-    e.send();
-    d = e.responseText;
+    var c = goog.global.CLOSURE_IMPORT_SCRIPT || goog.writeScriptTag_, d = goog.loadFileSync_(a);
     if (null != d) {
-      e = goog.wrapModule_(a, d), goog.IS_OLD_IE_ ? (goog.dependencies_.deferred[b] = e, goog.queuedModules_.push(b)) : c(a, e);
+      d = goog.wrapModule_(a, d), goog.IS_OLD_IE_ ? (goog.dependencies_.deferred[b] = d, goog.queuedModules_.push(b)) : c(a, d);
     } else {
       throw Error("load of " + a + "failed");
     }
@@ -409,7 +419,7 @@ goog.getUid = function(a) {
   return a[goog.UID_PROPERTY_] || (a[goog.UID_PROPERTY_] = ++goog.uidCounter_);
 };
 goog.hasUid = function(a) {
-  return!!a[goog.UID_PROPERTY_];
+  return !!a[goog.UID_PROPERTY_];
 };
 goog.removeUid = function(a) {
   "removeAttribute" in a && a.removeAttribute(goog.UID_PROPERTY_);
@@ -473,7 +483,7 @@ goog.mixin = function(a, b) {
   }
 };
 goog.now = goog.TRUSTED_SITE && Date.now || function() {
-  return+new Date;
+  return +new Date;
 };
 goog.globalEval = function(a) {
   if (goog.global.execScript) {
@@ -483,7 +493,7 @@ goog.globalEval = function(a) {
       if (null == goog.evalWorksForGlobals_ && (goog.global.eval("var _et_ = 1;"), "undefined" != typeof goog.global._et_ ? (delete goog.global._et_, goog.evalWorksForGlobals_ = !0) : goog.evalWorksForGlobals_ = !1), goog.evalWorksForGlobals_) {
         goog.global.eval(a);
       } else {
-        var b = goog.global.document, c = b.createElement("script");
+        var b = goog.global.document, c = b.createElement("SCRIPT");
         c.type = "text/javascript";
         c.defer = !1;
         c.appendChild(b.createTextNode(a));
@@ -637,7 +647,7 @@ goog.math.Long.fromInt = function(a) {
   return b;
 };
 goog.math.Long.fromNumber = function(a) {
-  return isNaN(a) || !isFinite(a) ? goog.math.Long.ZERO : a <= -goog.math.Long.TWO_PWR_63_DBL_ ? goog.math.Long.MIN_VALUE : a + 1 >= goog.math.Long.TWO_PWR_63_DBL_ ? goog.math.Long.MAX_VALUE : 0 > a ? goog.math.Long.fromNumber(-a).negate() : new goog.math.Long(a % goog.math.Long.TWO_PWR_32_DBL_ | 0, a / goog.math.Long.TWO_PWR_32_DBL_ | 0);
+  return isNaN(a) || !isFinite(a) ? goog.math.Long.getZero() : a <= -goog.math.Long.TWO_PWR_63_DBL_ ? goog.math.Long.getMinValue() : a + 1 >= goog.math.Long.TWO_PWR_63_DBL_ ? goog.math.Long.getMaxValue() : 0 > a ? goog.math.Long.fromNumber(-a).negate() : new goog.math.Long(a % goog.math.Long.TWO_PWR_32_DBL_ | 0, a / goog.math.Long.TWO_PWR_32_DBL_ | 0);
 };
 goog.math.Long.fromBits = function(a, b) {
   return new goog.math.Long(a, b);
@@ -656,25 +666,43 @@ goog.math.Long.fromString = function(a, b) {
   if (0 <= a.indexOf("-")) {
     throw Error('number format error: interior "-" character: ' + a);
   }
-  for (var d = goog.math.Long.fromNumber(Math.pow(c, 8)), e = goog.math.Long.ZERO, f = 0;f < a.length;f += 8) {
+  for (var d = goog.math.Long.fromNumber(Math.pow(c, 8)), e = goog.math.Long.getZero(), f = 0;f < a.length;f += 8) {
     var g = Math.min(8, a.length - f), h = parseInt(a.substring(f, f + g), c);
     8 > g ? (g = goog.math.Long.fromNumber(Math.pow(c, g)), e = e.multiply(g).add(goog.math.Long.fromNumber(h))) : (e = e.multiply(d), e = e.add(goog.math.Long.fromNumber(h)));
   }
   return e;
 };
 goog.math.Long.TWO_PWR_16_DBL_ = 65536;
-goog.math.Long.TWO_PWR_24_DBL_ = 16777216;
+goog.math.Long.getTwoPwr24DBL_ = 16777216;
 goog.math.Long.TWO_PWR_32_DBL_ = goog.math.Long.TWO_PWR_16_DBL_ * goog.math.Long.TWO_PWR_16_DBL_;
 goog.math.Long.TWO_PWR_31_DBL_ = goog.math.Long.TWO_PWR_32_DBL_ / 2;
 goog.math.Long.TWO_PWR_48_DBL_ = goog.math.Long.TWO_PWR_32_DBL_ * goog.math.Long.TWO_PWR_16_DBL_;
 goog.math.Long.TWO_PWR_64_DBL_ = goog.math.Long.TWO_PWR_32_DBL_ * goog.math.Long.TWO_PWR_32_DBL_;
 goog.math.Long.TWO_PWR_63_DBL_ = goog.math.Long.TWO_PWR_64_DBL_ / 2;
-goog.math.Long.ZERO = goog.math.Long.fromInt(0);
-goog.math.Long.ONE = goog.math.Long.fromInt(1);
-goog.math.Long.NEG_ONE = goog.math.Long.fromInt(-1);
-goog.math.Long.MAX_VALUE = goog.math.Long.fromBits(-1, 2147483647);
-goog.math.Long.MIN_VALUE = goog.math.Long.fromBits(0, -2147483648);
-goog.math.Long.TWO_PWR_24_ = goog.math.Long.fromInt(16777216);
+goog.math.Long.getZero = function() {
+  goog.math.Long.ZERO_ || (goog.math.Long.ZERO_ = goog.math.Long.fromInt(0));
+  return goog.math.Long.ZERO_;
+};
+goog.math.Long.getOne = function() {
+  goog.math.Long.ONE_ || (goog.math.Long.ONE_ = goog.math.Long.fromInt(1));
+  return goog.math.Long.ONE_;
+};
+goog.math.Long.getNegOne = function() {
+  goog.math.Long.NEG_ONE_ || (goog.math.Long.NEG_ONE_ = goog.math.Long.fromInt(-1));
+  return goog.math.Long.NEG_ONE_;
+};
+goog.math.Long.getMaxValue = function() {
+  goog.math.Long.MAX_VALUE_ || (goog.math.Long.MAX_VALUE_ = goog.math.Long.fromBits(-1, 2147483647));
+  return goog.math.Long.MAX_VALUE_;
+};
+goog.math.Long.getMinValue = function() {
+  goog.math.Long.MIN_VALUE_ || (goog.math.Long.MIN_VALUE_ = goog.math.Long.fromBits(0, -2147483648));
+  return goog.math.Long.MIN_VALUE_;
+};
+goog.math.Long.getTwoPwr24 = function() {
+  goog.math.Long.TWO_PWR_24_ || (goog.math.Long.TWO_PWR_24_ = goog.math.Long.fromInt(16777216));
+  return goog.math.Long.TWO_PWR_24_;
+};
 goog.math.Long.prototype.toInt = function() {
   return this.low_;
 };
@@ -690,7 +718,7 @@ goog.math.Long.prototype.toString = function(a) {
     return "0";
   }
   if (this.isNegative()) {
-    if (this.equals(goog.math.Long.MIN_VALUE)) {
+    if (this.equals(goog.math.Long.getMinValue())) {
       var b = goog.math.Long.fromNumber(a), c = this.div(b), b = c.multiply(b).subtract(this);
       return c.toString(a) + b.toInt().toString(a);
     }
@@ -718,7 +746,7 @@ goog.math.Long.prototype.getLowBitsUnsigned = function() {
 };
 goog.math.Long.prototype.getNumBitsAbs = function() {
   if (this.isNegative()) {
-    return this.equals(goog.math.Long.MIN_VALUE) ? 64 : this.negate().getNumBitsAbs();
+    return this.equals(goog.math.Long.getMinValue()) ? 64 : this.negate().getNumBitsAbs();
   }
   for (var a = 0 != this.high_ ? this.high_ : this.low_, b = 31;0 < b && 0 == (a & 1 << b);b--) {
   }
@@ -759,7 +787,7 @@ goog.math.Long.prototype.compare = function(a) {
   return b && !c ? -1 : !b && c ? 1 : this.subtract(a).isNegative() ? -1 : 1;
 };
 goog.math.Long.prototype.negate = function() {
-  return this.equals(goog.math.Long.MIN_VALUE) ? goog.math.Long.MIN_VALUE : this.not().add(goog.math.Long.ONE);
+  return this.equals(goog.math.Long.getMinValue()) ? goog.math.Long.getMinValue() : this.not().add(goog.math.Long.getOne());
 };
 goog.math.Long.prototype.add = function(a) {
   var b = this.high_ >>> 16, c = this.high_ & 65535, d = this.low_ >>> 16, e = a.high_ >>> 16, f = a.high_ & 65535, g = a.low_ >>> 16, h;
@@ -777,13 +805,13 @@ goog.math.Long.prototype.subtract = function(a) {
 };
 goog.math.Long.prototype.multiply = function(a) {
   if (this.isZero() || a.isZero()) {
-    return goog.math.Long.ZERO;
+    return goog.math.Long.getZero();
   }
-  if (this.equals(goog.math.Long.MIN_VALUE)) {
-    return a.isOdd() ? goog.math.Long.MIN_VALUE : goog.math.Long.ZERO;
+  if (this.equals(goog.math.Long.getMinValue())) {
+    return a.isOdd() ? goog.math.Long.getMinValue() : goog.math.Long.getZero();
   }
-  if (a.equals(goog.math.Long.MIN_VALUE)) {
-    return this.isOdd() ? goog.math.Long.MIN_VALUE : goog.math.Long.ZERO;
+  if (a.equals(goog.math.Long.getMinValue())) {
+    return this.isOdd() ? goog.math.Long.getMinValue() : goog.math.Long.getZero();
   }
   if (this.isNegative()) {
     return a.isNegative() ? this.negate().multiply(a.negate()) : this.negate().multiply(a).negate();
@@ -791,7 +819,7 @@ goog.math.Long.prototype.multiply = function(a) {
   if (a.isNegative()) {
     return this.multiply(a.negate()).negate();
   }
-  if (this.lessThan(goog.math.Long.TWO_PWR_24_) && a.lessThan(goog.math.Long.TWO_PWR_24_)) {
+  if (this.lessThan(goog.math.Long.getTwoPwr24()) && a.lessThan(goog.math.Long.getTwoPwr24())) {
     return goog.math.Long.fromNumber(this.toNumber() * a.toNumber());
   }
   var b = this.high_ >>> 16, c = this.high_ & 65535, d = this.low_ >>> 16, e = this.low_ & 65535, f = a.high_ >>> 16, g = a.high_ & 65535, h = a.low_ >>> 16;
@@ -820,24 +848,24 @@ goog.math.Long.prototype.div = function(a) {
     throw Error("division by zero");
   }
   if (this.isZero()) {
-    return goog.math.Long.ZERO;
+    return goog.math.Long.getZero();
   }
-  if (this.equals(goog.math.Long.MIN_VALUE)) {
-    if (a.equals(goog.math.Long.ONE) || a.equals(goog.math.Long.NEG_ONE)) {
-      return goog.math.Long.MIN_VALUE;
+  if (this.equals(goog.math.Long.getMinValue())) {
+    if (a.equals(goog.math.Long.getOne()) || a.equals(goog.math.Long.getNegOne())) {
+      return goog.math.Long.getMinValue();
     }
-    if (a.equals(goog.math.Long.MIN_VALUE)) {
-      return goog.math.Long.ONE;
+    if (a.equals(goog.math.Long.getMinValue())) {
+      return goog.math.Long.getOne();
     }
     var b = this.shiftRight(1).div(a).shiftLeft(1);
-    if (b.equals(goog.math.Long.ZERO)) {
-      return a.isNegative() ? goog.math.Long.ONE : goog.math.Long.NEG_ONE;
+    if (b.equals(goog.math.Long.getZero())) {
+      return a.isNegative() ? goog.math.Long.getOne() : goog.math.Long.getNegOne();
     }
     var c = this.subtract(a.multiply(b));
     return b.add(c.div(a));
   }
-  if (a.equals(goog.math.Long.MIN_VALUE)) {
-    return goog.math.Long.ZERO;
+  if (a.equals(goog.math.Long.getMinValue())) {
+    return goog.math.Long.getZero();
   }
   if (this.isNegative()) {
     return a.isNegative() ? this.negate().div(a.negate()) : this.negate().div(a).negate();
@@ -845,11 +873,11 @@ goog.math.Long.prototype.div = function(a) {
   if (a.isNegative()) {
     return this.div(a.negate()).negate();
   }
-  for (var d = goog.math.Long.ZERO, c = this;c.greaterThanOrEqual(a);) {
+  for (var d = goog.math.Long.getZero(), c = this;c.greaterThanOrEqual(a);) {
     for (var b = Math.max(1, Math.floor(c.toNumber() / a.toNumber())), e = Math.ceil(Math.log(b) / Math.LN2), e = 48 >= e ? 1 : Math.pow(2, e - 48), f = goog.math.Long.fromNumber(b), g = f.multiply(a);g.isNegative() || g.greaterThan(c);) {
       b -= e, f = goog.math.Long.fromNumber(b), g = f.multiply(a);
     }
-    f.isZero() && (f = goog.math.Long.ONE);
+    f.isZero() && (f = goog.math.Long.getOne());
     d = d.add(f);
     c = c.subtract(g);
   }
@@ -917,18 +945,18 @@ goog.object.map = function(a, b, c) {
 goog.object.some = function(a, b, c) {
   for (var d in a) {
     if (b.call(c, a[d], d, a)) {
-      return!0;
+      return !0;
     }
   }
-  return!1;
+  return !1;
 };
 goog.object.every = function(a, b, c) {
   for (var d in a) {
     if (!b.call(c, a[d], d, a)) {
-      return!1;
+      return !1;
     }
   }
-  return!0;
+  return !0;
 };
 goog.object.getCount = function(a) {
   var b = 0, c;
@@ -975,10 +1003,10 @@ goog.object.containsKey = function(a, b) {
 goog.object.containsValue = function(a, b) {
   for (var c in a) {
     if (a[c] == b) {
-      return!0;
+      return !0;
     }
   }
-  return!1;
+  return !1;
 };
 goog.object.findKey = function(a, b, c) {
   for (var d in a) {
@@ -988,13 +1016,13 @@ goog.object.findKey = function(a, b, c) {
   }
 };
 goog.object.findValue = function(a, b, c) {
-  return(b = goog.object.findKey(a, b, c)) && a[b];
+  return (b = goog.object.findKey(a, b, c)) && a[b];
 };
 goog.object.isEmpty = function(a) {
   for (var b in a) {
-    return!1;
+    return !1;
   }
-  return!0;
+  return !0;
 };
 goog.object.clear = function(a) {
   for (var b in a) {
@@ -1031,15 +1059,15 @@ goog.object.setWithReturnValueIfNotSet = function(a, b, c) {
 goog.object.equals = function(a, b) {
   for (var c in a) {
     if (!(c in b) || a[c] !== b[c]) {
-      return!1;
+      return !1;
     }
   }
   for (c in b) {
     if (!(c in a)) {
-      return!1;
+      return !1;
     }
   }
-  return!0;
+  return !0;
 };
 goog.object.clone = function(a) {
   var b = {}, c;
@@ -1110,7 +1138,7 @@ goog.object.createImmutableView = function(a) {
   return b;
 };
 goog.object.isImmutableView = function(a) {
-  return!!Object.isFrozen && Object.isFrozen(a);
+  return !!Object.isFrozen && Object.isFrozen(a);
 };
 var com = {cognitect:{}};
 com.cognitect.transit = {};
@@ -1129,12 +1157,12 @@ com.cognitect.transit.caching.MAX_CACHE_SIZE = 4096;
 com.cognitect.transit.caching.isCacheable = function(a, b) {
   if (a.length > com.cognitect.transit.caching.MIN_SIZE_CACHEABLE) {
     if (b) {
-      return!0;
+      return !0;
     }
     var c = a.charAt(0), d = a.charAt(1);
     return c === com.cognitect.transit.delimiters.ESC ? ":" === d || "$" === d || "#" === d : !1;
   }
-  return!1;
+  return !1;
 };
 com.cognitect.transit.caching.idxToCode = function(a) {
   var b = Math.floor(a / com.cognitect.transit.caching.CACHE_CODE_DIGITS);
@@ -1263,19 +1291,19 @@ com.cognitect.transit.eq.equals = function(a, b) {
     return null == b;
   }
   if (a === b) {
-    return!0;
+    return !0;
   }
   if ("object" === typeof a) {
     if (com.cognitect.transit.util.isArray(a)) {
       if (com.cognitect.transit.util.isArray(b) && a.length === b.length) {
         for (var c = 0;c < a.length;c++) {
           if (!com.cognitect.transit.eq.equals(a[c], b[c])) {
-            return!1;
+            return !1;
           }
         }
-        return!0;
+        return !0;
       }
-      return!1;
+      return !1;
     }
     if (a.com$cognitect$transit$equals) {
       return a.com$cognitect$transit$equals(b);
@@ -1287,13 +1315,13 @@ com.cognitect.transit.eq.equals = function(a, b) {
       var c = 0, d = com.cognitect.transit.util.objectKeys(b).length, e;
       for (e in a) {
         if (a.hasOwnProperty(e) && (c++, !b.hasOwnProperty(e) || !com.cognitect.transit.eq.equals(a[e], b[e]))) {
-          return!1;
+          return !1;
         }
       }
       return c === d;
     }
   }
-  return!1;
+  return !1;
 };
 com.cognitect.transit.eq.hashCombine = function(a, b) {
   return a ^ b + 2654435769 + (a << 6) + (a >> 2);
@@ -1347,7 +1375,7 @@ com.cognitect.transit.eq.hashCode = function(a) {
     case "number":
       return a;
     case "boolean":
-      return!0 === a ? 1 : 0;
+      return !0 === a ? 1 : 0;
     case "string":
       return com.cognitect.transit.eq.hashString(a);
     case "function":
@@ -1444,7 +1472,7 @@ com.cognitect.transit.types.Keyword.prototype.toString = function() {
 };
 com.cognitect.transit.types.Keyword.prototype.namespace = function() {
   var a = this.name.indexOf("/");
-  return-1 != a ? this.name.substring(0, a) : null;
+  return -1 != a ? this.name.substring(0, a) : null;
 };
 com.cognitect.transit.types.Keyword.prototype.equiv = function(a) {
   return com.cognitect.transit.eq.equals(this, a);
@@ -1469,7 +1497,7 @@ com.cognitect.transit.types.Symbol = function(a) {
 };
 com.cognitect.transit.types.Symbol.prototype.namespace = function() {
   var a = this.name.indexOf("/");
-  return-1 != a ? this.name.substring(0, a) : null;
+  return -1 != a ? this.name.substring(0, a) : null;
 };
 com.cognitect.transit.types.Symbol.prototype.toString = function() {
   return "[Symbol: " + this.name + "]";
@@ -1599,7 +1627,7 @@ com.cognitect.transit.types.TransitArrayMapIterator.prototype.next = function(a,
     this.idx += 2;
     return c;
   }
-  return{value:null, done:!0};
+  return {value:null, done:!0};
 };
 com.cognitect.transit.types.TransitArrayMapIterator.prototype.next = com.cognitect.transit.types.TransitArrayMapIterator.prototype.next;
 com.cognitect.transit.types.TransitMapIterator = function(a, b) {
@@ -1618,49 +1646,69 @@ com.cognitect.transit.types.TransitMapIterator.prototype.next = function() {
     this.bucketIdx += 2;
     return a;
   }
-  return{value:null, done:!0};
+  return {value:null, done:!0};
 };
 com.cognitect.transit.types.TransitMapIterator.prototype.next = com.cognitect.transit.types.TransitMapIterator.prototype.next;
 com.cognitect.transit.types.mapEquals = function(a, b) {
   if (a instanceof com.cognitect.transit.types.TransitMap && com.cognitect.transit.types.isMap(b)) {
     if (a.size !== b.size) {
-      return!1;
+      return !1;
     }
     for (var c in a.map) {
       for (var d = a.map[c], e = 0;e < d.length;e += 2) {
         if (!com.cognitect.transit.eq.equals(d[e + 1], b.get(d[e]))) {
-          return!1;
+          return !1;
         }
       }
     }
-    return!0;
+    return !0;
   }
   if (a instanceof com.cognitect.transit.types.TransitArrayMap && com.cognitect.transit.types.isMap(b)) {
     if (a.size !== b.size) {
-      return!1;
+      return !1;
     }
     c = a._entries;
     for (e = 0;e < c.length;e += 2) {
       if (!com.cognitect.transit.eq.equals(c[e + 1], b.get(c[e]))) {
-        return!1;
+        return !1;
       }
     }
-    return!0;
+    return !0;
   }
   if (null != b && "object" === typeof b && (e = com.cognitect.transit.util.objectKeys(b), c = e.length, a.size === c)) {
     for (d = 0;d < c;d++) {
       var f = e[d];
       if (!a.has(f) || !com.cognitect.transit.eq.equals(b[f], a.get(f))) {
-        return!1;
+        return !1;
       }
     }
-    return!0;
+    return !0;
   }
-  return!1;
+  return !1;
 };
 com.cognitect.transit.types.SMALL_ARRAY_MAP_THRESHOLD = 8;
 com.cognitect.transit.types.ARRAY_MAP_THRESHOLD = 32;
 com.cognitect.transit.types.ARRAY_MAP_ACCESS_THRESHOLD = 32;
+com.cognitect.transit.types.printMap = function(a) {
+  var b = 0, c = "TransitMap {";
+  a.forEach(function(d, e) {
+    var f = e.toString(), g = d.toString(), f = goog.isString(e) ? '"' + f + '"' : f, g = goog.isString(d) ? '"' + g + '"' : g;
+    c += f + " => " + g;
+    b < a.size - 1 && (c += ", ");
+    b++;
+  });
+  return c + "}";
+};
+com.cognitect.transit.types.printSet = function(a) {
+  var b = 0, c = "TransitSet {";
+  a.forEach(function(d) {
+    var e = d.toString(), e = goog.isString(d) ? '"' + e + '"' : e;
+    c += e;
+    b < a.size - 1 && (c += ", ");
+    b++;
+  });
+  return c + "}";
+};
 com.cognitect.transit.types.TransitArrayMap = function(a) {
   this._entries = a;
   this.backingMap = null;
@@ -1669,14 +1717,17 @@ com.cognitect.transit.types.TransitArrayMap = function(a) {
   this.accesses = 0;
 };
 com.cognitect.transit.types.TransitArrayMap.prototype.toString = function() {
-  return "[TransitArrayMap]";
+  return com.cognitect.transit.types.printMap(this);
+};
+com.cognitect.transit.types.TransitArrayMap.prototype.inspect = function() {
+  return this.toString();
 };
 com.cognitect.transit.types.TransitArrayMap.prototype.convert = function() {
   if (this.backingMap) {
     throw Error("Invalid operation, already converted");
   }
   if (this.size < com.cognitect.transit.types.SMALL_ARRAY_MAP_THRESHOLD) {
-    return!1;
+    return !1;
   }
   this.accesses++;
   return this.accesses > com.cognitect.transit.types.ARRAY_MAP_ACCESS_THRESHOLD ? (this.backingMap = com.cognitect.transit.types.map(this._entries, !1, !0), this._entries = [], !0) : !1;
@@ -1743,10 +1794,10 @@ com.cognitect.transit.types.TransitArrayMap.prototype.has = function(a) {
   }
   for (var b = 0;b < this._entries.length;b += 2) {
     if (com.cognitect.transit.eq.equals(this._entries[b], a)) {
-      return!0;
+      return !0;
     }
   }
-  return!1;
+  return !1;
 };
 com.cognitect.transit.types.TransitArrayMap.prototype.has = com.cognitect.transit.types.TransitArrayMap.prototype.has;
 com.cognitect.transit.types.TransitArrayMap.prototype.set = function(a, b) {
@@ -1803,7 +1854,10 @@ com.cognitect.transit.types.TransitMap = function(a, b, c) {
   this.hashCode = -1;
 };
 com.cognitect.transit.types.TransitMap.prototype.toString = function() {
-  return "[TransitMap]";
+  return com.cognitect.transit.types.printMap(this);
+};
+com.cognitect.transit.types.TransitMap.prototype.inspect = function() {
+  return this.toString();
 };
 com.cognitect.transit.types.TransitMap.prototype.clear = function() {
   this.hashCode = -1;
@@ -1854,11 +1908,11 @@ com.cognitect.transit.types.TransitMap.prototype.has = function(a) {
   if (null != b) {
     for (var c = 0;c < b.length;c += 2) {
       if (com.cognitect.transit.eq.equals(a, b[c])) {
-        return!0;
+        return !0;
       }
     }
   }
-  return!1;
+  return !1;
 };
 com.cognitect.transit.types.TransitMap.prototype.has = com.cognitect.transit.types.TransitMap.prototype.has;
 com.cognitect.transit.types.TransitMap.prototype.keys = function() {
@@ -1962,7 +2016,10 @@ com.cognitect.transit.types.TransitSet = function(a) {
   this.size = a.size;
 };
 com.cognitect.transit.types.TransitSet.prototype.toString = function() {
-  return "[TransitSet]";
+  return com.cognitect.transit.types.printSet(this);
+};
+com.cognitect.transit.types.TransitSet.prototype.inspect = function() {
+  return this.toString();
 };
 com.cognitect.transit.types.TransitSet.prototype.add = function(a) {
   this.map.set(a, a);
@@ -2020,7 +2077,7 @@ com.cognitect.transit.types.TransitSet.prototype.com$cognitect$transit$equals = 
       return com.cognitect.transit.eq.equals(this.map, a.map);
     }
   } else {
-    return!1;
+    return !1;
   }
 };
 com.cognitect.transit.types.TransitSet.prototype.com$cognitect$transit$hashCode = function(a) {
@@ -2068,7 +2125,7 @@ com.cognitect.transit.types.isLink = function(a) {
 com.cognitect.transit.types.specialDouble = function(a) {
   switch(a) {
     case "-INF":
-      return-Infinity;
+      return -Infinity;
     case "INF":
       return Infinity;
     case "NaN":
@@ -2116,7 +2173,7 @@ com.cognitect.transit.handlers.stringableKeys = function(a) {
   a = com.cognitect.transit.util.objectKeys(a);
   for (var b = 0;b < a.length;b++) {
   }
-  return!0;
+  return !0;
 };
 com.cognitect.transit.handlers.NilHandler = function() {
 };
@@ -2365,9 +2422,9 @@ com.cognitect.transit.handlers.validTag = function(a) {
     case "array":
     ;
     case "map":
-      return!1;
+      return !1;
   }
-  return!0;
+  return !0;
 };
 com.cognitect.transit.handlers.Handlers.prototype.set = function(a, b) {
   "string" === typeof a && com.cognitect.transit.handlers.validTag(a) ? this.handlers[a] = b : this.handlers[com.cognitect.transit.handlers.typeTag(a)] = b;
@@ -2402,9 +2459,9 @@ com.cognitect.transit.impl.decoder.isGroundHandler = function(a) {
     case "array":
     ;
     case "map":
-      return!0;
+      return !0;
   }
-  return!1;
+  return !1;
 };
 com.cognitect.transit.impl.decoder.Decoder = function(a) {
   this.options = a || {};
@@ -2664,7 +2721,7 @@ com.cognitect.transit.impl.writer.JSONMarshaller.prototype.emitQuoted = function
     a[d] = com.cognitect.transit.impl.writer.marshal(this, b, !1, c);
     return a;
   }
-  return[this.emitString(com.cognitect.transit.delimiters.ESC_TAG, "'", "", !0, c), com.cognitect.transit.impl.writer.marshal(this, b, !1, c)];
+  return [this.emitString(com.cognitect.transit.delimiters.ESC_TAG, "'", "", !0, c), com.cognitect.transit.impl.writer.marshal(this, b, !1, c)];
 };
 com.cognitect.transit.impl.writer.emitObjects = function(a, b, c) {
   var d = [];
@@ -2687,7 +2744,7 @@ com.cognitect.transit.impl.writer.isStringableKey = function(a, b) {
     var c = a.handler(b);
     return c && 1 === c.tag(b).length;
   }
-  return!0;
+  return !0;
 };
 com.cognitect.transit.impl.writer.stringableKeys = function(a, b) {
   var c = a.unpack(b), d = !0;
@@ -2715,7 +2772,7 @@ com.cognitect.transit.impl.writer.stringableKeys = function(a, b) {
 };
 com.cognitect.transit.impl.writer.isForeignObject = function(a) {
   if (a.constructor.transit$isObject) {
-    return!0;
+    return !0;
   }
   var b = a.constructor.toString(), b = b.substr(9), b = b.substr(0, b.indexOf("(")), b = "Object" == b;
   "undefined" != typeof Object.defineProperty ? Object.defineProperty(a.constructor, "transit$isObject", {value:b, enumerable:!1}) : a.constructor.transit$isObject = b;
@@ -2781,7 +2838,7 @@ com.cognitect.transit.impl.writer.emitMap = function(a, b, c, d) {
           g.push(com.cognitect.transit.impl.writer.marshal(a, b, !1, d));
         });
       }
-      return[h, g];
+      return [h, g];
     }
     e = ["^ "];
     f = com.cognitect.transit.util.objectKeys(b);
