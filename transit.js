@@ -1,4 +1,4 @@
-// transit-js 0.8.804
+// transit-js 0.8.806
 // http://transit-format.org
 // 
 // Copyright 2014 Cognitect. All Rights Reserved.
@@ -1689,11 +1689,13 @@ com.cognitect.transit.types.mapEquals = function(a, b) {
 com.cognitect.transit.types.SMALL_ARRAY_MAP_THRESHOLD = 8;
 com.cognitect.transit.types.ARRAY_MAP_THRESHOLD = 32;
 com.cognitect.transit.types.ARRAY_MAP_ACCESS_THRESHOLD = 32;
+com.cognitect.transit.types.print = function(a) {
+  return null == a ? "null" : goog.isArray(a) ? "[" + a.toString() + "]" : goog.isString(a) ? '"' + a + '"' : a.toString();
+};
 com.cognitect.transit.types.printMap = function(a) {
   var b = 0, c = "TransitMap {";
   a.forEach(function(d, e) {
-    var f = null == e ? "null" : e.toString(), g = null == d ? "null" : d.toString(), f = goog.isString(e) ? '"' + f + '"' : f, g = goog.isString(d) ? '"' + g + '"' : g;
-    c += f + " => " + g;
+    c += com.cognitect.transit.types.print(e) + " => " + com.cognitect.transit.types.print(d);
     b < a.size - 1 && (c += ", ");
     b++;
   });
@@ -1702,8 +1704,7 @@ com.cognitect.transit.types.printMap = function(a) {
 com.cognitect.transit.types.printSet = function(a) {
   var b = 0, c = "TransitSet {";
   a.forEach(function(d) {
-    var e = null == d ? "null" : d.toString(), e = goog.isString(d) ? '"' + e + '"' : e;
-    c += e;
+    c += com.cognitect.transit.types.print(d);
     b < a.size - 1 && (c += ", ");
     b++;
   });
