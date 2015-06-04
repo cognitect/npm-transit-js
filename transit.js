@@ -1,4 +1,4 @@
-// transit-js 0.8.802
+// transit-js 0.8.804
 // http://transit-format.org
 // 
 // Copyright 2014 Cognitect. All Rights Reserved.
@@ -1692,7 +1692,7 @@ com.cognitect.transit.types.ARRAY_MAP_ACCESS_THRESHOLD = 32;
 com.cognitect.transit.types.printMap = function(a) {
   var b = 0, c = "TransitMap {";
   a.forEach(function(d, e) {
-    var f = e.toString(), g = d.toString(), f = goog.isString(e) ? '"' + f + '"' : f, g = goog.isString(d) ? '"' + g + '"' : g;
+    var f = null == e ? "null" : e.toString(), g = null == d ? "null" : d.toString(), f = goog.isString(e) ? '"' + f + '"' : f, g = goog.isString(d) ? '"' + g + '"' : g;
     c += f + " => " + g;
     b < a.size - 1 && (c += ", ");
     b++;
@@ -1702,7 +1702,7 @@ com.cognitect.transit.types.printMap = function(a) {
 com.cognitect.transit.types.printSet = function(a) {
   var b = 0, c = "TransitSet {";
   a.forEach(function(d) {
-    var e = d.toString(), e = goog.isString(d) ? '"' + e + '"' : e;
+    var e = null == d ? "null" : d.toString(), e = goog.isString(d) ? '"' + e + '"' : e;
     c += e;
     b < a.size - 1 && (c += ", ");
     b++;
