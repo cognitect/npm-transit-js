@@ -1,4 +1,4 @@
-// transit-js 0.8.806
+// transit-js 0.8.808
 // http://transit-format.org
 // 
 // Copyright 2014 Cognitect. All Rights Reserved.
@@ -1500,7 +1500,7 @@ com.cognitect.transit.types.Symbol.prototype.namespace = function() {
   return -1 != a ? this.name.substring(0, a) : null;
 };
 com.cognitect.transit.types.Symbol.prototype.toString = function() {
-  return "[Symbol: " + this.name + "]";
+  return this.name;
 };
 com.cognitect.transit.types.Symbol.prototype.equiv = function(a) {
   return com.cognitect.transit.eq.equals(this, a);
