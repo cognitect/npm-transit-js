@@ -1,4 +1,4 @@
-// transit-js 0.8.813
+// transit-js 0.8.832
 // http://transit-format.org
 // 
 // Copyright 2014 Cognitect. All Rights Reserved.
@@ -1443,7 +1443,7 @@ goog.math.Long.prototype.com$cognitect$transit$hashCode = function() {
   return this.toInt();
 };
 com.cognitect.transit.types.isInteger = function(a) {
-  return a instanceof goog.math.Long ? !0 : "number" === typeof a && !isNaN(a) && Infinity !== a && parseFloat(a) === parseInt(a);
+  return a instanceof goog.math.Long ? !0 : "number" === typeof a && !isNaN(a) && Infinity !== a && parseFloat(a) === parseInt(a, 10);
 };
 com.cognitect.transit.types.floatValue = function(a) {
   return parseFloat(a);
@@ -1540,8 +1540,8 @@ com.cognitect.transit.types.UUID.prototype.getLeastSignificantBits = function() 
 com.cognitect.transit.types.UUID.prototype.getMostSignificantBits = function() {
   return this.high;
 };
-com.cognitect.transit.types.UUID.prototype.toString = function(a) {
-  var b = this.high, c = this.low;
+com.cognitect.transit.types.UUID.prototype.toString = function() {
+  var a, b = this.high, c = this.low;
   a = "" + (com.cognitect.transit.types.hexFor(b, 0, 4) + "-");
   a += com.cognitect.transit.types.hexFor(b, 4, 6) + "-";
   a += com.cognitect.transit.types.hexFor(b, 6, 8) + "-";
@@ -1621,11 +1621,11 @@ com.cognitect.transit.types.TransitArrayMapIterator = function(a, b) {
   this.type = b || com.cognitect.transit.types.KEYS;
   this.idx = 0;
 };
-com.cognitect.transit.types.TransitArrayMapIterator.prototype.next = function(a, b) {
+com.cognitect.transit.types.TransitArrayMapIterator.prototype.next = function() {
   if (this.idx < this.entries.length) {
-    var c = null, c = this.type === com.cognitect.transit.types.KEYS ? this.entries[this.idx] : this.type === com.cognitect.transit.types.VALUES ? this.entries[this.idx + 1] : [this.entries[this.idx], this.entries[this.idx + 1]], c = {value:c, done:!1};
+    var a = null, a = this.type === com.cognitect.transit.types.KEYS ? this.entries[this.idx] : this.type === com.cognitect.transit.types.VALUES ? this.entries[this.idx + 1] : [this.entries[this.idx], this.entries[this.idx + 1]], a = {value:a, done:!1};
     this.idx += 2;
-    return c;
+    return a;
   }
   return {value:null, done:!0};
 };
@@ -3007,7 +3007,7 @@ com.cognitect.transit.link = com.cognitect.transit.types.link;
 com.cognitect.transit.isLink = com.cognitect.transit.types.isLink;
 com.cognitect.transit.hash = com.cognitect.transit.eq.hashCode;
 com.cognitect.transit.hashMapLike = com.cognitect.transit.eq.hashMapLike;
-com.cognitect.transit.hashMapLike = com.cognitect.transit.eq.hashArrayLike;
+com.cognitect.transit.hashArrayLike = com.cognitect.transit.eq.hashArrayLike;
 com.cognitect.transit.equals = com.cognitect.transit.eq.equals;
 com.cognitect.transit.extendToEQ = com.cognitect.transit.eq.extendToEQ;
 com.cognitect.transit.mapToObject = function(a) {
@@ -3031,7 +3031,7 @@ com.cognitect.transit.decoder = com.cognitect.transit.impl.decoder.decoder;
 com.cognitect.transit.readCache = com.cognitect.transit.caching.readCache;
 com.cognitect.transit.writeCache = com.cognitect.transit.caching.writeCache;
 com.cognitect.transit.UUIDfromString = com.cognitect.transit.types.UUIDfromString;
-com.cognitect.transit.randomUUID = com.cognitect.transit.types.randomUUID;
+com.cognitect.transit.randomUUID = com.cognitect.transit.util.randomUUID;
 com.cognitect.transit.stringableKeys = com.cognitect.transit.impl.writer.stringableKeys;
 TRANSIT_BROWSER_TARGET && (goog.exportSymbol("transit.reader", com.cognitect.transit.reader), goog.exportSymbol("transit.writer", com.cognitect.transit.writer), goog.exportSymbol("transit.makeBuilder", com.cognitect.transit.makeBuilder), goog.exportSymbol("transit.makeWriteHandler", com.cognitect.transit.makeWriteHandler), goog.exportSymbol("transit.date", com.cognitect.transit.types.date), goog.exportSymbol("transit.integer", com.cognitect.transit.types.intValue), goog.exportSymbol("transit.isInteger", 
 com.cognitect.transit.types.isInteger), goog.exportSymbol("transit.uuid", com.cognitect.transit.types.uuid), goog.exportSymbol("transit.isUUID", com.cognitect.transit.types.isUUID), goog.exportSymbol("transit.bigInt", com.cognitect.transit.types.bigInteger), goog.exportSymbol("transit.isBigInt", com.cognitect.transit.types.isBigInteger), goog.exportSymbol("transit.bigDec", com.cognitect.transit.types.bigDecimalValue), goog.exportSymbol("transit.isBigDec", com.cognitect.transit.types.isBigDecimal), 
@@ -3039,10 +3039,10 @@ goog.exportSymbol("transit.keyword", com.cognitect.transit.types.keyword), goog.
 goog.exportSymbol("transit.isURI", com.cognitect.transit.types.isURI), goog.exportSymbol("transit.map", com.cognitect.transit.types.map), goog.exportSymbol("transit.isMap", com.cognitect.transit.types.isMap), goog.exportSymbol("transit.set", com.cognitect.transit.types.set), goog.exportSymbol("transit.isSet", com.cognitect.transit.types.isSet), goog.exportSymbol("transit.list", com.cognitect.transit.types.list), goog.exportSymbol("transit.isList", com.cognitect.transit.types.isList), goog.exportSymbol("transit.quoted", 
 com.cognitect.transit.types.quoted), goog.exportSymbol("transit.isQuoted", com.cognitect.transit.types.isQuoted), goog.exportSymbol("transit.tagged", com.cognitect.transit.types.taggedValue), goog.exportSymbol("transit.isTaggedValue", com.cognitect.transit.types.isTaggedValue), goog.exportSymbol("transit.link", com.cognitect.transit.types.link), goog.exportSymbol("transit.isLink", com.cognitect.transit.types.isLink), goog.exportSymbol("transit.hash", com.cognitect.transit.eq.hashCode), goog.exportSymbol("transit.hashMapLike", 
 com.cognitect.transit.eq.hashMapLike), goog.exportSymbol("transit.hashArrayLike", com.cognitect.transit.eq.hashArrayLike), goog.exportSymbol("transit.equals", com.cognitect.transit.eq.equals), goog.exportSymbol("transit.extendToEQ", com.cognitect.transit.eq.extendToEQ), goog.exportSymbol("transit.mapToObject", com.cognitect.transit.mapToObject), goog.exportSymbol("transit.objectToMap", com.cognitect.transit.objectToMap), goog.exportSymbol("transit.decoder", com.cognitect.transit.impl.decoder.decoder), 
-goog.exportSymbol("transit.UUIDfromString", com.cognitect.transit.types.UUIDfromString), goog.exportSymbol("transit.randomUUID", com.cognitect.transit.types.randomUUID), goog.exportSymbol("transit.stringableKeys", com.cognitect.transit.impl.writer.stringableKeys), goog.exportSymbol("transit.readCache", com.cognitect.transit.caching.readCache), goog.exportSymbol("transit.writeCache", com.cognitect.transit.caching.writeCache));
+goog.exportSymbol("transit.UUIDfromString", com.cognitect.transit.types.UUIDfromString), goog.exportSymbol("transit.randomUUID", com.cognitect.transit.util.randomUUID), goog.exportSymbol("transit.stringableKeys", com.cognitect.transit.impl.writer.stringableKeys), goog.exportSymbol("transit.readCache", com.cognitect.transit.caching.readCache), goog.exportSymbol("transit.writeCache", com.cognitect.transit.caching.writeCache));
 TRANSIT_NODE_TARGET && (module.exports = {reader:com.cognitect.transit.reader, writer:com.cognitect.transit.writer, makeBuilder:com.cognitect.transit.makeBuilder, makeWriteHandler:com.cognitect.transit.makeWriteHandler, date:com.cognitect.transit.types.date, integer:com.cognitect.transit.types.intValue, isInteger:com.cognitect.transit.types.isInteger, uuid:com.cognitect.transit.types.uuid, isUUID:com.cognitect.transit.types.isUUID, bigInt:com.cognitect.transit.types.bigInteger, isBigInt:com.cognitect.transit.types.isBigInteger, 
 bigDec:com.cognitect.transit.types.bigDecimalValue, isBigDec:com.cognitect.transit.types.isBigDecimal, keyword:com.cognitect.transit.types.keyword, isKeyword:com.cognitect.transit.types.isKeyword, symbol:com.cognitect.transit.types.symbol, isSymbol:com.cognitect.transit.types.isSymbol, binary:com.cognitect.transit.types.binary, isBinary:com.cognitect.transit.types.isBinary, uri:com.cognitect.transit.types.uri, isURI:com.cognitect.transit.types.isURI, map:com.cognitect.transit.types.map, isMap:com.cognitect.transit.types.isMap, 
 set:com.cognitect.transit.types.set, isSet:com.cognitect.transit.types.isSet, list:com.cognitect.transit.types.list, isList:com.cognitect.transit.types.isList, quoted:com.cognitect.transit.types.quoted, isQuoted:com.cognitect.transit.types.isQuoted, tagged:com.cognitect.transit.types.taggedValue, isTaggedValue:com.cognitect.transit.types.isTaggedValue, link:com.cognitect.transit.types.link, isLink:com.cognitect.transit.types.isLink, hash:com.cognitect.transit.eq.hashCode, hashArrayLike:com.cognitect.transit.eq.hashArrayLike, 
-hashMapLike:com.cognitect.transit.eq.hashMapLike, equals:com.cognitect.transit.eq.equals, extendToEQ:com.cognitect.transit.eq.extendToEQ, mapToObject:com.cognitect.transit.mapToObject, objectToMap:com.cognitect.transit.objectToMap, decoder:com.cognitect.transit.impl.decoder.decoder, UUIDfromString:com.cognitect.transit.types.UUIDfromString, randomUUID:com.cognitect.transit.types.randomUUID, stringableKeys:com.cognitect.transit.impl.writer.stringableKeys, readCache:com.cognitect.transit.caching.readCache, 
+hashMapLike:com.cognitect.transit.eq.hashMapLike, equals:com.cognitect.transit.eq.equals, extendToEQ:com.cognitect.transit.eq.extendToEQ, mapToObject:com.cognitect.transit.mapToObject, objectToMap:com.cognitect.transit.objectToMap, decoder:com.cognitect.transit.impl.decoder.decoder, UUIDfromString:com.cognitect.transit.types.UUIDfromString, randomUUID:com.cognitect.transit.util.randomUUID, stringableKeys:com.cognitect.transit.impl.writer.stringableKeys, readCache:com.cognitect.transit.caching.readCache, 
 writeCache:com.cognitect.transit.caching.writeCache});
 
