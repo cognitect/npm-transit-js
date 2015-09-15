@@ -1,4 +1,4 @@
-// transit-js 0.8.836
+// transit-js 0.8.838
 // http://transit-format.org
 // 
 // Copyright 2014 Cognitect. All Rights Reserved.
@@ -1392,6 +1392,7 @@ com.cognitect.transit.eq.extendToEQ = function(a, b) {
   return a;
 };
 com.cognitect.transit.types = {};
+com.cognitect.transit.types.ITERATOR = "undefined" != typeof Symbol ? Symbol.iterator : "@@iterator";
 com.cognitect.transit.types.TaggedValue = function(a, b) {
   this.tag = a;
   this.rep = b;
@@ -1638,6 +1639,9 @@ com.cognitect.transit.types.TransitArrayMapIterator.prototype.next = function() 
   return {value:null, done:!0};
 };
 com.cognitect.transit.types.TransitArrayMapIterator.prototype.next = com.cognitect.transit.types.TransitArrayMapIterator.prototype.next;
+com.cognitect.transit.types.TransitArrayMapIterator.prototype[com.cognitect.transit.types.ITERATOR] = function() {
+  return this;
+};
 com.cognitect.transit.types.TransitMapIterator = function(a, b) {
   this.map = a;
   this.type = b || com.cognitect.transit.types.KEYS;
@@ -1657,6 +1661,9 @@ com.cognitect.transit.types.TransitMapIterator.prototype.next = function() {
   return {value:null, done:!0};
 };
 com.cognitect.transit.types.TransitMapIterator.prototype.next = com.cognitect.transit.types.TransitMapIterator.prototype.next;
+com.cognitect.transit.types.TransitMapIterator.prototype[com.cognitect.transit.types.ITERATOR] = function() {
+  return this;
+};
 com.cognitect.transit.types.mapEquals = function(a, b) {
   if (a instanceof com.cognitect.transit.types.TransitMap && com.cognitect.transit.types.isMap(b)) {
     if (a.size !== b.size) {
@@ -1846,6 +1853,9 @@ com.cognitect.transit.types.TransitArrayMap.prototype.clone = function() {
   return a;
 };
 com.cognitect.transit.types.TransitArrayMap.prototype.clone = com.cognitect.transit.types.TransitArrayMap.prototype.clone;
+com.cognitect.transit.types.TransitArrayMap.prototype[com.cognitect.transit.types.ITERATOR] = function() {
+  return this.entries();
+};
 com.cognitect.transit.types.TransitArrayMap.prototype.com$cognitect$transit$hashCode = function() {
   if (this.backingMap) {
     return this.backingMap.com$cognitect$transit$hashCode();
@@ -1966,6 +1976,9 @@ com.cognitect.transit.types.TransitMap.prototype.clone = function() {
   return a;
 };
 com.cognitect.transit.types.TransitMap.prototype.clone = com.cognitect.transit.types.TransitMap.prototype.clone;
+com.cognitect.transit.types.TransitMap.prototype[com.cognitect.transit.types.ITERATOR] = function() {
+  return this.entries();
+};
 com.cognitect.transit.types.TransitMap.prototype.com$cognitect$transit$hashCode = function() {
   -1 === this.hashCode && (this.hashCode = com.cognitect.transit.eq.hashMapLike(this));
   return this.hashCode;
@@ -2080,6 +2093,9 @@ com.cognitect.transit.types.TransitSet.prototype.clone = function() {
   return a;
 };
 com.cognitect.transit.types.TransitSet.prototype.clone = com.cognitect.transit.types.TransitSet.prototype.clone;
+com.cognitect.transit.types.TransitSet.prototype[com.cognitect.transit.types.ITERATOR] = function() {
+  return this.values();
+};
 com.cognitect.transit.types.TransitSet.prototype.com$cognitect$transit$equals = function(a) {
   if (a instanceof com.cognitect.transit.types.TransitSet) {
     if (this.size === a.size) {
