@@ -1,4 +1,4 @@
-// transit-js 0.8.832
+// transit-js 0.8.836
 // http://transit-format.org
 // 
 // Copyright 2014 Cognitect. All Rights Reserved.
@@ -1464,25 +1464,29 @@ com.cognitect.transit.types.charValue = function(a) {
   return a;
 };
 com.cognitect.transit.types.Keyword = function(a) {
-  this.name = a;
+  this._name = a;
   this.hashCode = -1;
 };
 com.cognitect.transit.types.Keyword.prototype.toString = function() {
-  return ":" + this.name;
+  return ":" + this._name;
 };
 com.cognitect.transit.types.Keyword.prototype.namespace = function() {
-  var a = this.name.indexOf("/");
-  return -1 != a ? this.name.substring(0, a) : null;
+  var a = this._name.indexOf("/");
+  return -1 != a ? this._name.substring(0, a) : null;
+};
+com.cognitect.transit.types.Keyword.prototype.name = function() {
+  var a = this._name.indexOf("/");
+  return -1 != a ? this._name.substring(a + 1, this._name.length) : this._name;
 };
 com.cognitect.transit.types.Keyword.prototype.equiv = function(a) {
   return com.cognitect.transit.eq.equals(this, a);
 };
 com.cognitect.transit.types.Keyword.prototype.equiv = com.cognitect.transit.types.Keyword.prototype.equiv;
 com.cognitect.transit.types.Keyword.prototype.com$cognitect$transit$equals = function(a) {
-  return a instanceof com.cognitect.transit.types.Keyword && this.name == a.name;
+  return a instanceof com.cognitect.transit.types.Keyword && this._name == a._name;
 };
 com.cognitect.transit.types.Keyword.prototype.com$cognitect$transit$hashCode = function() {
-  -1 === this.hashCode && (this.hashCode = com.cognitect.transit.eq.hashCode(this.name));
+  -1 === this.hashCode && (this.hashCode = com.cognitect.transit.eq.hashCode(this._name));
   return this.hashCode;
 };
 com.cognitect.transit.types.keyword = function(a) {
@@ -1492,25 +1496,29 @@ com.cognitect.transit.types.isKeyword = function(a) {
   return a instanceof com.cognitect.transit.types.Keyword;
 };
 com.cognitect.transit.types.Symbol = function(a) {
-  this.name = a;
+  this._name = a;
   this.hashCode = -1;
 };
 com.cognitect.transit.types.Symbol.prototype.namespace = function() {
-  var a = this.name.indexOf("/");
-  return -1 != a ? this.name.substring(0, a) : null;
+  var a = this._name.indexOf("/");
+  return -1 != a ? this._name.substring(0, a) : null;
+};
+com.cognitect.transit.types.Symbol.prototype.name = function() {
+  var a = this._name.indexOf("/");
+  return -1 != a ? this._name.substring(a + 1, this._name.length) : this._name;
 };
 com.cognitect.transit.types.Symbol.prototype.toString = function() {
-  return this.name;
+  return this._name;
 };
 com.cognitect.transit.types.Symbol.prototype.equiv = function(a) {
   return com.cognitect.transit.eq.equals(this, a);
 };
 com.cognitect.transit.types.Symbol.prototype.equiv = com.cognitect.transit.types.Symbol.prototype.equiv;
 com.cognitect.transit.types.Symbol.prototype.com$cognitect$transit$equals = function(a) {
-  return a instanceof com.cognitect.transit.types.Symbol && this.name == a.name;
+  return a instanceof com.cognitect.transit.types.Symbol && this._name == a._name;
 };
 com.cognitect.transit.types.Symbol.prototype.com$cognitect$transit$hashCode = function() {
-  -1 === this.hashCode && (this.hashCode = com.cognitect.transit.eq.hashCode(this.name));
+  -1 === this.hashCode && (this.hashCode = com.cognitect.transit.eq.hashCode(this._name));
   return this.hashCode;
 };
 com.cognitect.transit.types.symbol = function(a) {
@@ -2295,7 +2303,7 @@ com.cognitect.transit.handlers.KeywordHandler.prototype.tag = function(a) {
   return ":";
 };
 com.cognitect.transit.handlers.KeywordHandler.prototype.rep = function(a) {
-  return a.name;
+  return a._name;
 };
 com.cognitect.transit.handlers.KeywordHandler.prototype.stringRep = function(a, b) {
   return b.rep(a);
@@ -2306,7 +2314,7 @@ com.cognitect.transit.handlers.SymbolHandler.prototype.tag = function(a) {
   return "$";
 };
 com.cognitect.transit.handlers.SymbolHandler.prototype.rep = function(a) {
-  return a.name;
+  return a._name;
 };
 com.cognitect.transit.handlers.SymbolHandler.prototype.stringRep = function(a, b) {
   return b.rep(a);
