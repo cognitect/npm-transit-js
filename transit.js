@@ -1,4 +1,4 @@
-// transit-js 0.8.838
+// transit-js 0.8.847
 // http://transit-format.org
 // 
 // Copyright 2014 Cognitect. All Rights Reserved.
@@ -2799,78 +2799,82 @@ com.cognitect.transit.impl.writer.isForeignObject = function(a) {
   if (a.constructor.transit$isObject) {
     return !0;
   }
-  var b = a.constructor.toString(), b = b.substr(9), b = b.substr(0, b.indexOf("(")), b = "Object" == b;
-  "undefined" != typeof Object.defineProperty ? Object.defineProperty(a.constructor, "transit$isObject", {value:b, enumerable:!1}) : a.constructor.transit$isObject = b;
-  return b;
+  var b = a.constructor.toString(), b = b.substr(9), b = b.substr(0, b.indexOf("("));
+  isObject = "Object" == b;
+  "undefined" != typeof Object.defineProperty ? Object.defineProperty(a.constructor, "transit$isObject", {value:isObject, enumerable:!1}) : a.constructor.transit$isObject = isObject;
+  return isObject;
 };
 com.cognitect.transit.impl.writer.emitMap = function(a, b, c, d) {
+  var e = null, f = null, g = null, e = null;
+  c = 0;
   if (b.constructor === Object || null != b.forEach || a.handlerForForeign && com.cognitect.transit.impl.writer.isForeignObject(b)) {
     if (a.verbose) {
       if (null != b.forEach) {
         if (com.cognitect.transit.impl.writer.stringableKeys(a, b)) {
-          var e = {};
+          var h = {};
           b.forEach(function(b, c) {
-            e[com.cognitect.transit.impl.writer.marshal(a, c, !0, !1)] = com.cognitect.transit.impl.writer.marshal(a, b, !1, d);
+            h[com.cognitect.transit.impl.writer.marshal(a, c, !0, !1)] = com.cognitect.transit.impl.writer.marshal(a, b, !1, d);
           });
         } else {
-          var f = a.unpack(b), g = [], h = a.emitString(com.cognitect.transit.delimiters.ESC_TAG, "cmap", "", !0, d);
-          if (f) {
-            for (c = 0;c < f.length;c += 2) {
-              g.push(com.cognitect.transit.impl.writer.marshal(a, f[c], !0, !1)), g.push(com.cognitect.transit.impl.writer.marshal(a, f[c + 1], !1, d));
+          e = a.unpack(b);
+          f = [];
+          g = a.emitString(com.cognitect.transit.delimiters.ESC_TAG, "cmap", "", !0, d);
+          if (e) {
+            for (;c < e.length;c += 2) {
+              f.push(com.cognitect.transit.impl.writer.marshal(a, e[c], !1, !1)), f.push(com.cognitect.transit.impl.writer.marshal(a, e[c + 1], !1, d));
             }
           } else {
             b.forEach(function(b, c) {
-              g.push(com.cognitect.transit.impl.writer.marshal(a, c, !0, !1));
-              g.push(com.cognitect.transit.impl.writer.marshal(a, b, !1, d));
+              f.push(com.cognitect.transit.impl.writer.marshal(a, c, !1, !1));
+              f.push(com.cognitect.transit.impl.writer.marshal(a, b, !1, d));
             });
           }
-          e = {};
-          e[h] = g;
+          h = {};
+          h[g] = f;
         }
       } else {
-        for (e = {}, f = com.cognitect.transit.util.objectKeys(b), c = 0;c < f.length;c++) {
-          e[com.cognitect.transit.impl.writer.marshal(a, f[c], !0, !1)] = com.cognitect.transit.impl.writer.marshal(a, b[f[c]], !1, d);
+        for (e = com.cognitect.transit.util.objectKeys(b), h = {};c < e.length;c++) {
+          h[com.cognitect.transit.impl.writer.marshal(a, e[c], !0, !1)] = com.cognitect.transit.impl.writer.marshal(a, b[e[c]], !1, d);
         }
       }
-      return e;
+      return h;
     }
     if (null != b.forEach) {
       if (com.cognitect.transit.impl.writer.stringableKeys(a, b)) {
-        f = a.unpack(b);
-        e = ["^ "];
-        if (f) {
-          for (c = 0;c < f.length;c += 2) {
-            e.push(com.cognitect.transit.impl.writer.marshal(a, f[c], !0, d)), e.push(com.cognitect.transit.impl.writer.marshal(a, f[c + 1], !1, d));
+        e = a.unpack(b);
+        h = ["^ "];
+        if (e) {
+          for (;c < e.length;c += 2) {
+            h.push(com.cognitect.transit.impl.writer.marshal(a, e[c], !0, d)), h.push(com.cognitect.transit.impl.writer.marshal(a, e[c + 1], !1, d));
           }
         } else {
           b.forEach(function(b, c) {
-            e.push(com.cognitect.transit.impl.writer.marshal(a, c, !0, d));
-            e.push(com.cognitect.transit.impl.writer.marshal(a, b, !1, d));
+            h.push(com.cognitect.transit.impl.writer.marshal(a, c, !0, d));
+            h.push(com.cognitect.transit.impl.writer.marshal(a, b, !1, d));
           });
         }
-        return e;
+        return h;
       }
-      f = a.unpack(b);
-      g = [];
-      h = a.emitString(com.cognitect.transit.delimiters.ESC_TAG, "cmap", "", !0, d);
-      if (f) {
-        for (c = 0;c < f.length;c += 2) {
-          g.push(com.cognitect.transit.impl.writer.marshal(a, f[c], !0, d)), g.push(com.cognitect.transit.impl.writer.marshal(a, f[c + 1], !1, d));
+      e = a.unpack(b);
+      f = [];
+      g = a.emitString(com.cognitect.transit.delimiters.ESC_TAG, "cmap", "", !0, d);
+      if (e) {
+        for (;c < e.length;c += 2) {
+          f.push(com.cognitect.transit.impl.writer.marshal(a, e[c], !1, d)), f.push(com.cognitect.transit.impl.writer.marshal(a, e[c + 1], !1, d));
         }
       } else {
         b.forEach(function(b, c) {
-          g.push(com.cognitect.transit.impl.writer.marshal(a, c, !0, d));
-          g.push(com.cognitect.transit.impl.writer.marshal(a, b, !1, d));
+          f.push(com.cognitect.transit.impl.writer.marshal(a, c, !1, d));
+          f.push(com.cognitect.transit.impl.writer.marshal(a, b, !1, d));
         });
       }
-      return [h, g];
+      return [g, f];
     }
-    e = ["^ "];
-    f = com.cognitect.transit.util.objectKeys(b);
-    for (c = 0;c < f.length;c++) {
-      e.push(com.cognitect.transit.impl.writer.marshal(a, f[c], !0, d)), e.push(com.cognitect.transit.impl.writer.marshal(a, b[f[c]], !1, d));
+    h = ["^ "];
+    for (e = com.cognitect.transit.util.objectKeys(b);c < e.length;c++) {
+      h.push(com.cognitect.transit.impl.writer.marshal(a, e[c], !0, d)), h.push(com.cognitect.transit.impl.writer.marshal(a, b[e[c]], !1, d));
     }
-    return e;
+    return h;
   }
   if (null != a.objectBuilder) {
     return a.objectBuilder(b, function(b) {
@@ -2880,9 +2884,9 @@ com.cognitect.transit.impl.writer.emitMap = function(a, b, c, d) {
     });
   }
   c = com.cognitect.transit.handlers.constructor(b).name;
-  f = Error("Cannot write " + c);
-  f.data = {obj:b, type:c};
-  throw f;
+  e = Error("Cannot write " + c);
+  e.data = {obj:b, type:c};
+  throw e;
 };
 com.cognitect.transit.impl.writer.emitTaggedMap = function(a, b, c, d, e) {
   return a.verbose ? (d = {}, d[a.emitString(com.cognitect.transit.delimiters.ESC_TAG, b, "", !0, e)] = com.cognitect.transit.impl.writer.marshal(a, c, !1, e), d) : [a.emitString(com.cognitect.transit.delimiters.ESC_TAG, b, "", !0, e), com.cognitect.transit.impl.writer.marshal(a, c, !1, e)];
